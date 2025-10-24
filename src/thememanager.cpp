@@ -1,4 +1,4 @@
-#include "../include/thememanager.h"
+#include "thememanager.h"
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QDebug>

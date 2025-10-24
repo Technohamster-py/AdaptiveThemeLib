@@ -1,4 +1,4 @@
-#include "../include/themediconmanager.h"
+#include "themediconmanager.h"
 #include <QApplication>
 #include <QFile>
 #include <QSvgRenderer>
