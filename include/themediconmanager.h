@@ -1,4 +1,5 @@
-#pragma once
+#ifndef THEMEDICONMANAGER_H
+#define THEMEDICONMANAGER_H
 
 #include <QObject>
 #include <QPointer>
@@ -81,3 +82,5 @@ private:
 
 static QColor themeColor();
 };
+
+#endif

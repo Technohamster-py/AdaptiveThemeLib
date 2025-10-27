@@ -1,5 +1,5 @@
-#ifndef DM_ASSIST_THEMEMANAGER_H
-#define DM_ASSIST_THEMEMANAGER_H
+#ifndef THEMEMANAGER_H
+#define THEMEMANAGER_H
 
 #include <QPalette>
 #include <QShortcut>
@@ -55,4 +55,4 @@ public:
 };
 
 
-#endif //DM_ASSIST_THEMEMANAGER_H
+#endif //THEMEMANAGER_H
