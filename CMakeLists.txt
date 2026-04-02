@@ -41,7 +41,7 @@ target_link_libraries(AdaptiveThemeLib PUBLIC
 add_library(AdaptiveThemeLib::AdaptiveThemeLib ALIAS AdaptiveThemeLib)
 
 install(TARGETS AdaptiveThemeLib EXPORT AdaptiveThemeLibTargets)
-install(DIRECTORY include/ DESTINATION include)
+install(DIRECTORY include DESTINATION include)
 install(EXPORT AdaptiveThemeLibTargets
         FILE AdaptiveThemeLibConfig.cmake
         NAMESPACE AdaptiveThemeLib::
