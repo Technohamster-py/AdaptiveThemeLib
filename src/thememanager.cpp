@@ -156,3 +156,310 @@ bool ThemeManager::loadFromXml(const QString& path) {
 void ThemeManager::resetToSystemTheme() {
     qApp->setPalette(QPalette());
 }
+
+void ThemeManager::refreshStyleSheet() {
+    QPalette palette = QApplication::palette();
+    QString stylesheet = generateStyleSheet(palette);
+    qApp->setStyleSheet(stylesheet);
+}
+
+QString ThemeManager::generateStyleSheet(const QPalette &palette) {
+    QColor window = palette.color(QPalette::Window);
+    QColor windowText = palette.color(QPalette::WindowText);
+    QColor base = palette.color(QPalette::Base);
+    QColor alternateBase = palette.color(QPalette::AlternateBase);
+    QColor text = palette.color(QPalette::Text);
+    QColor button = palette.color(QPalette::Button);
+    QColor buttonText = palette.color(QPalette::ButtonText);
+    QColor highlight = palette.color(QPalette::Highlight);
+    QColor highlightedText = palette.color(QPalette::HighlightedText);
+    QColor mid = palette.color(QPalette::Mid);
+    QColor dark = palette.color(QPalette::Dark);
+
+    return QString(R"(
+        /* Глобальные настройки */
+        * {
+            transition: all 0.2s ease-in-out;
+        }
+
+        QMainWindow, QDialog {
+            background-color: %1;
+        }
+
+        /* Современные вкладки как в VS Code */
+        QTabWidget::pane {
+            border: 1px solid %10;
+            background-color: %1;
+            border-radius: 8px;
+            top: -1px;
+        }
+
+        QTabBar::tab {
+            background-color: %8;
+            color: %2;
+            padding: 8px 16px;
+            margin-right: 4px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: %1;
+            color: %7;
+            border-bottom: 2px solid %7;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: %9;
+        }
+
+        /* Современные кнопки */
+        QPushButton {
+            background-color: %5;
+            color: %6;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+
+        QPushButton:hover {
+            background-color: %7;
+            color: %12;
+        }
+
+        QPushButton:pressed {
+            background-color: %11;
+        }
+
+        QPushButton:checked {
+            background-color: %7;
+            color: %12;
+        }
+
+        /* Поля ввода с плавной подсветкой */
+        QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QComboBox {
+            background-color: %3;
+            color: %4;
+            border: 1px solid %10;
+            border-radius: 6px;
+            padding: 6px 10px;
+            selection-background-color: %7;
+        }
+
+        QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
+            border: 1px solid %7;
+            background-color: %1;
+        }
+
+        /* Сплиттеры с современным дизайном */
+        QSplitter::handle {
+            background-color: %10;
+            border-radius: 2px;
+            margin: 2px;
+        }
+
+        QSplitter::handle:hover {
+            background-color: %7;
+        }
+
+        /* Полосы прокрутки как в macOS */
+        QScrollBar:vertical {
+            background: %1;
+            width: 12px;
+            border-radius: 6px;
+        }
+
+        QScrollBar::handle:vertical {
+            background: %10;
+            border-radius: 6px;
+            min-height: 30px;
+        }
+
+        QScrollBar::handle:vertical:hover {
+            background: %7;
+        }
+
+        QScrollBar:horizontal {
+            background: %1;
+            height: 12px;
+            border-radius: 6px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: %10;
+            border-radius: 6px;
+            min-width: 30px;
+        }
+
+        QScrollBar::handle:horizontal:hover {
+            background: %7;
+        }
+
+        /* Меню и выпадающие списки */
+        QMenu {
+            background-color: %3;
+            border: 1px solid %10;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        QMenu::item {
+            padding: 6px 24px;
+            border-radius: 4px;
+        }
+
+        QMenu::item:selected {
+            background-color: %7;
+            color: %12;
+        }
+
+        /* ToolBar с прозрачностью */
+        QToolBar {
+            background-color: transparent;
+            border: none;
+            spacing: 4px;
+            padding: 4px;
+        }
+
+        QToolButton {
+            background-color: transparent;
+            border-radius: 6px;
+            padding: 6px;
+            icon-size: 20px;
+        }
+
+        QToolButton:hover {
+            background-color: %9;
+        }
+
+        QToolButton:checked {
+            background-color: %7;
+        }
+
+        /* ProgressBar с анимацией */
+        QProgressBar {
+            border: none;
+            border-radius: 4px;
+            background-color: %8;
+            text-align: center;
+            color: %2;
+        }
+
+        QProgressBar::chunk {
+            background-color: %7;
+            border-radius: 4px;
+        }
+
+        /* Групповые боксы */
+        QGroupBox {
+            border: 1px solid %10;
+            border-radius: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 12px;
+            padding: 0 8px;
+            color: %2;
+        }
+
+        /* Слайдеры */
+        QSlider::groove:horizontal {
+            height: 4px;
+            background: %10;
+            border-radius: 2px;
+        }
+
+        QSlider::handle:horizontal {
+            background: %7;
+            width: 16px;
+            height: 16px;
+            margin: -6px 0;
+            border-radius: 8px;
+        }
+
+        QSlider::handle:horizontal:hover {
+            background: %11;
+            transform: scale(1.2);
+        }
+
+        /* Статус бар */
+        QStatusBar {
+            background-color: %1;
+            border-top: 1px solid %10;
+        }
+
+        /* Ваш кастомный виджет инициативы */
+        InitiativeTrackerWidget {
+            background-color: %3;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        /* Дерево кампании */
+        QTreeWidget {
+            background-color: %3;
+            border: none;
+            border-radius: 8px;
+            outline: 0;
+        }
+
+        QTreeWidget::item {
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        QTreeWidget::item:selected {
+            background-color: %7;
+            color: %12;
+        }
+
+        QTreeWidget::item:hover {
+            background-color: %9;
+        }
+
+        /* Таблица инициативы */
+        QTableWidget {
+            background-color: %3;
+            border: none;
+            border-radius: 8px;
+            gridline-color: %10;
+        }
+
+        QTableWidget::item {
+            padding: 8px;
+        }
+
+        QTableWidget::item:selected {
+            background-color: %7;
+            color: %12;
+        }
+
+        QHeaderView::section {
+            background-color: %8;
+            padding: 8px;
+            border: none;
+            border-right: 1px solid %10;
+            border-bottom: 1px solid %10;
+        }
+    )").arg(
+        window.name(),           // %1
+        windowText.name(),       // %2
+        base.name(),             // %3
+        text.name(),             // %4
+        button.name(),           // %5
+        buttonText.name(),       // %6
+        highlight.name(),        // %7
+        highlightedText.name(),  // %8 - для тёмных тем
+        mid.name(),              // %9 - для hover
+        dark.name(),             // %10 - для границ
+        highlight.darker(120).name(), // %11 - pressed
+        highlightedText.name()   // %12 - для текста на highlight
+    );
+}
+
+void ThemeManager::updateIconManager() {
+}

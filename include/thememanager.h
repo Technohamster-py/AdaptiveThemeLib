@@ -52,6 +52,12 @@ public:
     static void applyPreset(PresetTheme theme);
     static bool loadFromXml(const QString& path);
     static void resetToSystemTheme();
+
+    static void refreshStyleSheet();
+
+private:
+    static QString generateStyleSheet(const QPalette &palette);
+    static  void updateIconManager();
 };
 
 
