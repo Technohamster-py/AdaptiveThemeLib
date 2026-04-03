@@ -22,8 +22,11 @@ find_package(Qt6 REQUIRED COMPONENTS
 )
 
 add_library(AdaptiveThemeLib
-        include/thememanager.h src/thememanager.cpp
+        include/palettemanager.h src/palettemanager.cpp
         include/themediconmanager.h src/themediconmanager.cpp
+        include/qssmanager.h    src/qssmanager.cpp
+        src/thememanager.cpp
+        include/thememanager.h
 )
 
 target_include_directories(AdaptiveThemeLib PUBLIC

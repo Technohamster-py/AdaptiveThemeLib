@@ -282,3 +282,28 @@ QPixmap ThemedIconManager::renderIconGrid(const QStringList &svgPaths, QSize ico
     painter.end();
     return pixmap;
 }
+
+template<typename T>
+void ThemedIconManager::addIconTarget(const QString &svgPath, T *object, void(T::*setIconMethod)(const QIcon &),
+QSize size)  {
+    if (!object || svgPath.isEmpty())
+        return;
+
+    m_targets.erase(std::remove_if(m_targets.begin(), m_targets.end(),
+                                   [object](const IconTarget& target) {
+                                       return target.receiver == object;
+                                   }),
+                    m_targets.end());
+
+    IconTarget target;
+    target.path = svgPath;
+    target.size = size;
+    target.receiver = object;
+    target.applyIcon = [object, setIconMethod](const QIcon& icon) {
+        if (object)
+            (object->*setIconMethod)(icon);
+    };
+
+    m_targets.append(target);
+    regenerateAndApplyIcon(m_targets.last());
+}
