@@ -8,8 +8,8 @@
 
 class QssManager : public QObject{
     Q_OBJECT
-
 public:
+    enum class PresetQss {System, Material, LiquidGlass};
     static QssManager& instance();
 
     bool loadQssFromFile(const QString& fileName);

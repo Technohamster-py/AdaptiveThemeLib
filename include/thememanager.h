@@ -1,18 +1,15 @@
 #ifndef ADAPTIVETHEMELIB_THEMEMANAGER_H
 #define ADAPTIVETHEMELIB_THEMEMANAGER_H
 
-#include <QObject>
-#include <QString>
+#include "palettemanager.h"
 
 class ThemeManager : public QObject{
     Q_OBJECT
 public:
-    enum class PresetTheme {Light, Dark, System};
-    Q_ENUM(PresetTheme);
 
     static ThemeManager& instance();
 
-    void applyPreset(PresetTheme preset);
+    void applyPresetPalette(PaletteManager::PresetPalette preset);
     void setPaletteFile(const QString& paletteFilePath);
     void setStyleSheetFile(const QString& stylesheetFilePath);
     void applyCustomTheme();
@@ -36,7 +33,7 @@ private:
 
     QString m_paletteFile;
     QString m_qssFile;
-    PresetTheme m_currentPreset = PresetTheme::System;
+    PaletteManager::PresetPalette m_currentPreset = PaletteManager::PresetPalette::System;
     bool m_usingCustomFiles = false;
 };
 

@@ -1,4 +1,3 @@
-// thememanager.cpp
 #include "thememanager.h"
 #include "palettemanager.h"
 #include "qssmanager.h"
@@ -63,35 +62,21 @@ void ThemeManager::applyCustomTheme() {
     emit themeChanged();
 }
 
-void ThemeManager::applyPreset(PresetTheme preset) {
+void ThemeManager::applyPresetPalette(PaletteManager::PresetPalette preset) {
     m_currentPreset = preset;
     m_usingCustomFiles = false;
-
-    PaletteManager::PresetPalette palettePreset;
-    switch (preset) {
-    case PresetTheme::Light:
-        palettePreset = PaletteManager::PresetPalette::Light;
-        break;
-    case PresetTheme::Dark:
-        palettePreset = PaletteManager::PresetPalette::Dark;
-        break;
-    case PresetTheme::System:
-        palettePreset = PaletteManager::PresetPalette::System;
-        break;
-    }
-    PaletteManager::instance().applyPreset(palettePreset);
-
+    PaletteManager::instance().applyPreset(preset);
     QssManager::instance().refreshFromPalette(qApp->palette());
 }
 
 void ThemeManager::resetToSystemTheme() {
-    applyPreset(PresetTheme::System);
+    applyPresetPalette(PaletteManager::PresetPalette::System);
 }
 
 void ThemeManager::refresh() {
     if (m_usingCustomFiles && !m_paletteFile.isEmpty() && !m_qssFile.isEmpty()) {
         applyCustomTheme();
     } else {
-        applyPreset(m_currentPreset);
+        applyPresetPalette(m_currentPreset);
     }
 }
