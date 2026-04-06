@@ -27,7 +27,7 @@ void ThemeManager::setPaletteFile(const QString& paletteFilePath) {
         return;
     }
     m_paletteFile = paletteFilePath;
-    m_usingCustomFiles = true;
+    m_usingCustomPalette = true;
 
     emit paletteChanged(m_paletteFile);
 
@@ -43,7 +43,7 @@ void ThemeManager::setStyleSheetFile(const QString& qssFilePath) {
     }
 
     m_qssFile = qssFilePath;
-    m_usingCustomFiles = true;
+    m_usingCustomStylesheet = true;
 
     emit stylesheetChanged(m_qssFile);
 
@@ -63,20 +63,64 @@ void ThemeManager::applyCustomTheme() {
 }
 
 void ThemeManager::applyPresetPalette(PaletteManager::PresetPalette preset) {
-    m_currentPreset = preset;
-    m_usingCustomFiles = false;
+    m_currentPalettePreset = preset;
+    m_usingCustomPalette = false;
     PaletteManager::instance().applyPreset(preset);
     QssManager::instance().refreshFromPalette(qApp->palette());
 }
 
-void ThemeManager::resetToSystemTheme() {
-    applyPresetPalette(PaletteManager::PresetPalette::System);
+void ThemeManager::applyPresetStyleSheet(QssManager::PresetQss preset) {
+    m_currentQssPreset = preset;
+    m_usingCustomStylesheet = false;
+    QssManager::instance().applyPreset(preset);
+    QssManager::instance().refreshFromPalette(qApp->palette());
 }
 
+void ThemeManager::resetToSystemTheme() {
+    PaletteManager::instance().applyPreset(PaletteManager::PresetPalette::System);
+    QssManager::instance().applyPreset(QssManager::PresetQss::System);
+}
+
+
 void ThemeManager::refresh() {
-    if (m_usingCustomFiles && !m_paletteFile.isEmpty() && !m_qssFile.isEmpty()) {
+    qDebug() << "Refreshing theme state";
+
+    /// Both Qss and Palette are custom
+    if (m_usingCustomStylesheet && m_usingCustomPalette && !m_qssFile.isEmpty() && !m_paletteFile.isEmpty()) {
+        qDebug() << "Applying custom theme state with files: \n\t palette:" << m_paletteFile << "\n\t qss:" << m_qssFile;
         applyCustomTheme();
-    } else {
-        applyPresetPalette(m_currentPreset);
+        return;
     }
+
+    /// Palette is custom, Qss from preset
+    if (m_usingCustomPalette && !m_paletteFile.isEmpty()) {
+        qDebug() << "Applying preset qss with custom palette: \t palette:" << m_paletteFile;
+        PaletteManager::instance().loadFromXml(m_paletteFile);
+        QssManager::instance().applyPreset(m_currentQssPreset);
+        QssManager::instance().refreshFromPalette(qApp->palette());
+        emit themeChanged();
+        return;
+    }
+
+    /// Qss is custom, palette from preset
+    if (m_usingCustomStylesheet && !m_qssFile.isEmpty()) {
+        qDebug() << "Applying preset palette with custom : \t qss:" << m_paletteFile;
+        QssManager::instance().loadQssFromFile(m_qssFile);
+        PaletteManager::instance().applyPreset(m_currentPalettePreset);
+        QssManager::instance().refreshFromPalette(qApp->palette());
+        emit themeChanged();
+        return;
+    }
+
+    /// Both Qss and Palette are preset
+    if (!m_usingCustomPalette && !m_usingCustomStylesheet) {
+        qDebug() << "Applying preset palette and qss";
+        QssManager::instance().applyPreset(m_currentQssPreset);
+        PaletteManager::instance().applyPreset(m_currentPalettePreset);
+        QssManager::instance().refreshFromPalette(qApp->palette());
+        return;
+    }
+
+    qWarning() << "Unknown palette and qss state, falling back to system";
+    resetToSystemTheme();
 }

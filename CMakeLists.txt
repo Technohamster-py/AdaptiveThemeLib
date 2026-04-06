@@ -21,6 +21,9 @@ find_package(Qt6 REQUIRED COMPONENTS
         Svg
 )
 
+set(RESOURCES resources/resources.qrc)
+qt6_add_resources(AdaptiveThemeLib ${RESOURCES})
+
 add_library(AdaptiveThemeLib
         include/palettemanager.h src/palettemanager.cpp
         include/themediconmanager.h src/themediconmanager.cpp
@@ -28,6 +31,9 @@ add_library(AdaptiveThemeLib
         src/thememanager.cpp
         include/thememanager.h
 )
+
+
+
 
 target_include_directories(AdaptiveThemeLib PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

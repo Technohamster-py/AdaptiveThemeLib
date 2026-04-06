@@ -2,6 +2,7 @@
 #define ADAPTIVETHEMELIB_THEMEMANAGER_H
 
 #include "palettemanager.h"
+#include "qssmanager.h"
 
 class ThemeManager : public QObject{
     Q_OBJECT
@@ -10,8 +11,11 @@ public:
     static ThemeManager& instance();
 
     void applyPresetPalette(PaletteManager::PresetPalette preset);
+    void applyPresetStyleSheet(QssManager::PresetQss preset);
+
     void setPaletteFile(const QString& paletteFilePath);
     void setStyleSheetFile(const QString& stylesheetFilePath);
+
     void applyCustomTheme();
     void resetToSystemTheme();
     void refresh();
@@ -29,8 +33,12 @@ private:
 
     QString m_paletteFile;
     QString m_qssFile;
-    PaletteManager::PresetPalette m_currentPreset = PaletteManager::PresetPalette::System;
-    bool m_usingCustomFiles = false;
+
+    PaletteManager::PresetPalette m_currentPalettePreset = PaletteManager::PresetPalette::System;
+    QssManager::PresetQss m_currentQssPreset = QssManager::PresetQss::System;
+
+    bool m_usingCustomPalette = false;
+    bool m_usingCustomStylesheet = false;
 };
 
 

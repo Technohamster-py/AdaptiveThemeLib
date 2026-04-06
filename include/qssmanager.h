@@ -9,10 +9,12 @@
 class QssManager : public QObject{
     Q_OBJECT
 public:
-    enum class PresetQss {System, Material, LiquidGlass};
+    enum class PresetQss {System, Material, Classic, Modern, LiquidGlass};
     static QssManager& instance();
 
     bool loadQssFromFile(const QString& fileName);
+    void applyPreset(const PresetQss preset);
+
     void applyCurrentStyleSheet();
     void dropStyleSheet();
 
@@ -26,6 +28,8 @@ signals:
 public slots:
     void refreshFromPalette(const QPalette& palette);
 
+protected:
+    bool loadPresetFromFile(const QString& fileName);
 
 private:
     QssManager() = default;

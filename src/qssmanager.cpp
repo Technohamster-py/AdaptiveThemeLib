@@ -22,6 +22,25 @@ bool QssManager::loadQssFromFile(const QString &fileName) {
     return true;
 }
 
+void QssManager::applyPreset(const PresetQss preset) {
+    QString fileName;
+    switch (preset) {
+        case PresetQss::Material:
+            fileName = ":/material.qss";
+            break;
+        case PresetQss::Modern:
+            fileName = ":/modern.qss";
+            break;
+        case PresetQss::Classic:
+            fileName = ":/classic.qss";
+            break;
+        default:
+            dropStyleSheet();
+            return;
+    }
+    loadQssFromFile(fileName);
+}
+
 void QssManager::applyCurrentStyleSheet() {
     if (!m_currentStyleSheet.isEmpty()) qApp->setStyleSheet(m_currentStyleSheet);
     emit styleSheetUpdated();
@@ -37,6 +56,10 @@ void QssManager::dropStyleSheet() {
 void QssManager::refreshFromPalette(const QPalette &palette) {
     initDefaultVariables(palette);
     if (!m_currentStyleSheet.isEmpty()) applyCurrentStyleSheet();
+}
+
+bool QssManager::loadPresetFromFile(const QString &fileName) {
+
 }
 
 void QssManager::setVariable(const QString &varName, const QString &value) {
