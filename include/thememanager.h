@@ -22,14 +22,10 @@ signals:
     void themeRefreshRequested();
 
 private:
-    ThemeManager() = default;
+    ThemeManager();
     ~ThemeManager() = default;
     ThemeManager(const ThemeManager&) = delete;
     ThemeManager& operator=(const ThemeManager&) = delete;
-
-    void setupConnections();
-    void applyCurrentPalette();
-    void applyCurrenStyleSheet();
 
     QString m_paletteFile;
     QString m_qssFile;

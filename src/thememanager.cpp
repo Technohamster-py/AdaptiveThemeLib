@@ -11,7 +11,7 @@ ThemeManager& ThemeManager::instance() {
     return instance;
 }
 
-void ThemeManager::setupConnections() {
+ThemeManager::ThemeManager() : QObject() {
     auto& paletteManager = PaletteManager::instance();
     auto& qssManager = QssManager::instance();
     auto& iconManager = ThemedIconManager::instance();
