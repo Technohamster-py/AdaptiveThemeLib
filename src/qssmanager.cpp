@@ -4,8 +4,9 @@
 #include <QRegularExpression>
 #include <QDebug>
 
-const QMetaObject * QssManager::metaObject() const {
-    return QObject::metaObject();
+QssManager& QssManager::instance() {
+    static QssManager instance;
+    return instance;
 }
 
 bool QssManager::loadQssFromFile(const QString &fileName) {
@@ -18,11 +19,17 @@ bool QssManager::loadQssFromFile(const QString &fileName) {
 
     m_currentFile = fileName;
     m_currentStyleSheet = processVariables(rawQss);
-    applyCurrentStyleSheet();
     return true;
 }
 
-void QssManager::applyPreset(const PresetQss preset) {
+void QssManager::applyQssFromFile(const QString &fileName) {
+    if (loadQssFromFile(fileName))
+        applyCurrentStyleSheet();
+    else
+        qWarning() << "Unable to load stylesheet from file " << fileName;
+}
+
+void QssManager::applyPreset(const PresetQss& preset) {
     QString fileName;
     switch (preset) {
         case PresetQss::Material:
@@ -38,7 +45,7 @@ void QssManager::applyPreset(const PresetQss preset) {
             dropStyleSheet();
             return;
     }
-    loadQssFromFile(fileName);
+    applyQssFromFile(fileName);
 }
 
 void QssManager::applyCurrentStyleSheet() {
@@ -56,10 +63,6 @@ void QssManager::dropStyleSheet() {
 void QssManager::refreshFromPalette(const QPalette &palette) {
     initDefaultVariables(palette);
     if (!m_currentStyleSheet.isEmpty()) applyCurrentStyleSheet();
-}
-
-bool QssManager::loadPresetFromFile(const QString &fileName) {
-
 }
 
 void QssManager::setVariable(const QString &varName, const QString &value) {
@@ -91,7 +94,6 @@ QString QssManager::processVariables(const QString &qss) {
             result.replace("$" + varName, m_variables[varName]);
         }
     }
-
     return result;
 }
 
@@ -107,10 +109,5 @@ void QssManager::initDefaultVariables(const QPalette &palette) {
     m_variables["highlightedText"] = palette.color(QPalette::HighlightedText).name();
     m_variables["mid"] = palette.color(QPalette::Mid).name();
     m_variables["dark"] = palette.color(QPalette::Dark).name();
-}
-
-QssManager& QssManager::instance() {
-    static QssManager instance;
-    return instance;
 }
 
