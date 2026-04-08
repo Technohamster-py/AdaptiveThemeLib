@@ -14,9 +14,11 @@ public:
     void applyPresetStyleSheet(QssManager::PresetQss preset);
 
     void setPaletteFile(const QString& paletteFilePath);
-    void setStyleSheetFile(const QString& stylesheetFilePath);
+    void setPalettePreset(PaletteManager::PresetPalette preset);
 
-    void applyCustomTheme();
+    void setStyleSheetFile(const QString& stylesheetFilePath);
+    void setStyleSheetPreset(QssManager::PresetQss preset);
+
     void resetToSystemTheme();
     void refresh();
 signals:
@@ -36,9 +38,6 @@ private:
 
     PaletteManager::PresetPalette m_currentPalettePreset = PaletteManager::PresetPalette::System;
     QssManager::PresetQss m_currentQssPreset = QssManager::PresetQss::System;
-
-    bool m_usingCustomPalette = false;
-    bool m_usingCustomStylesheet = false;
 };
 
 

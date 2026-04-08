@@ -4,6 +4,16 @@
 #include <QRegularExpression>
 #include <QDebug>
 
+QString QssManager::presetName(PresetQss preset) {
+    switch (preset) {
+        case PresetQss::System: return "System";
+        case PresetQss::Material: return "Material";
+        case PresetQss::Classic: return "Classic";
+        case PresetQss::Modern: return "Modern";
+        case PresetQss::LiquidGlass: return "LiquidGlass";
+    }
+}
+
 QssManager& QssManager::instance() {
     static QssManager instance;
     return instance;

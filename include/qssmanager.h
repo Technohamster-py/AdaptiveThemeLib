@@ -10,6 +10,7 @@ class QssManager : public QObject{
     Q_OBJECT
 public:
     enum class PresetQss {System, Material, Classic, Modern, LiquidGlass};
+    static QString presetName(PresetQss preset);
     static QssManager& instance();
 
     void applyCurrentStyleSheet();
