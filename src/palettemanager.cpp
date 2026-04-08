@@ -3,7 +3,39 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
-PaletteManager& PaletteManager::instance() {
+static const QHash<QString, QPalette::ColorRole>& getRoleMap() {
+    static const QHash<QString, QPalette::ColorRole> roleMap = {
+        {"Window", QPalette::Window},
+        {"WindowText", QPalette::WindowText},
+        {"Base", QPalette::Base},
+        {"AlternateBase", QPalette::AlternateBase},
+        {"ToolTipBase", QPalette::ToolTipBase},
+        {"ToolTipText", QPalette::ToolTipText},
+        {"Text", QPalette::Text},
+        {"Button", QPalette::Button},
+        {"ButtonText", QPalette::ButtonText},
+        {"BrightText", QPalette::BrightText},
+        {"Highlight", QPalette::Highlight},
+        {"HighlightedText", QPalette::HighlightedText},
+        {"Link", QPalette::Link},
+        {"LinkVisited", QPalette::LinkVisited},
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        {"PlaceholderText", QPalette::PlaceholderText},
+#endif
+    };
+    return roleMap;
+}
+
+static const QHash<QString, QPalette::ColorGroup>& getGroupMap() {
+    static const QHash<QString, QPalette::ColorGroup> groupMap = {
+        {"active", QPalette::Active},
+        {"inactive", QPalette::Inactive},
+        {"disabled", QPalette::Disabled}
+    };
+    return groupMap;
+}
+
+PaletteManager &PaletteManager::instance() {
     static PaletteManager instance;
     return instance;
 }
@@ -39,7 +71,9 @@ void PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
             palette.setColor(QPalette::ButtonText, Qt::black);
             palette.setColor(QPalette::Highlight, QColor("#2196f3"));
             palette.setColor(QPalette::HighlightedText, Qt::white);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
             palette.setColor(QPalette::PlaceholderText, QColor("#9f9f9f"));
+#endif
             break;
         case PresetPalette::Dark:
             palette.setColor(QPalette::Window, QColor("#1e1f22"));
@@ -51,7 +85,9 @@ void PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
             palette.setColor(QPalette::Highlight, QColor("#3f51b5"));
             palette.setColor(QPalette::HighlightedText, Qt::white);
             palette.setColor(QPalette::Link, QColor("#55aaff"));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
             palette.setColor(QPalette::PlaceholderText, QColor("#efefef"));
+#endif
             break;
         default:
             resetToSystemPalette();
@@ -89,75 +125,81 @@ bool PaletteManager::loadFromXml(const QString &path) {
     }
 
     QXmlStreamReader xml(&file);
+    xml.setEntityResolver(nullptr);
     if (xml.hasError()) {
         qWarning() << "XML parse error:" << xml.errorString();
         return false;
     }
 
     QPalette palette;
+    const auto& groupMap = getGroupMap();
+    const auto& roleMap = getRoleMap();
 
-    while (!xml.atEnd()) {
+    while (!xml.atEnd() && !xml.hasError()) {
         xml.readNext();
 
-        if (xml.isStartElement() && groupMap.contains(xml.name().toString().toLower())) {
+        if (!xml.isStartElement()) continue;
+
+        QString tagName = xml.name().toString().toLower();
+        if (groupMap.contains(tagName)) {
             QPalette::ColorGroup group = groupMap[xml.name().toString().toLower()];
             QString groupTagName = xml.name().toString().toLower();
 
             while (!(xml.isEndElement() && xml.name().toString().toLower() == groupTagName) && !xml.atEnd()) {
                 xml.readNext();
+                if (!xml.isStartElement() || !(xml.name().toString() == "colorrole")) continue;
 
-                if (xml.isStartElement() && xml.name().toString() == "colorrole") {
-                    QString roleStr = xml.attributes().value("role").toString();
-                    if (!roleMap.contains(roleStr)) continue;
+                QString roleStr = xml.attributes().value("role").toString();
+                if (!roleMap.contains(roleStr)) continue;
 
-                    QPalette::ColorRole role = roleMap[roleStr];
-                    QColor color;
-                    bool colorFound = false;
+                QPalette::ColorRole role = roleMap[roleStr];
+                QColor color;
+                bool colorFound = false;
 
-                    // Внутри <colorrole> ищем <color>
-                    while (!(xml.isEndElement() && xml.name().toString() == "colorrole") && !xml.atEnd()) {
+                // Внутри <colorrole> ищем <color>
+                while (!(xml.isEndElement() && xml.name().toString() == "colorrole") && !xml.atEnd()) {
+                    xml.readNext();
+                    if (!xml.isStartElement() || !(xml.name().toString() == "color")) continue;
+
+                    // Сначала считываем alpha, если есть (это атрибут)
+                    QXmlStreamAttributes attrs = xml.attributes();
+                    int a = attrs.hasAttribute("alpha") ? attrs.value("alpha").toInt() : 255;
+                    int r = 0, g = 0, b = 0;
+
+                    // Чтение вложенных тегов red, green, blue
+                    while (!(xml.isEndElement() && xml.name().toString() == "color") && !xml.atEnd()) {
                         xml.readNext();
+                        if (!xml.isStartElement()) continue;
 
-                        if (xml.isStartElement() && xml.name().toString() == "color") {
-                            // Сначала считываем alpha, если есть (это атрибут)
-                            QXmlStreamAttributes attrs = xml.attributes();
-                            int a = attrs.hasAttribute("alpha") ? attrs.value("alpha").toInt() : 255;
+                        QString cname = xml.name().toString().toLower();
+                        xml.readNext();
+                        if (!xml.isCharacters()) continue;
 
-                            int r = 0, g = 0, b = 0;
-
-                            // Чтение вложенных тегов red, green, blue
-                            while (!(xml.isEndElement() && xml.name().toString() == "color") && !xml.atEnd()) {
-                                xml.readNext();
-
-                                if (xml.isStartElement()) {
-                                    QString cname = xml.name().toString().toLower();
-                                    xml.readNext();
-
-                                    if (xml.isCharacters()) {
-                                        bool ok = false;
-                                        int val = xml.text().toInt(&ok);
-                                        if (ok) {
-                                            if (cname == "red") r = val;
-                                            else if (cname == "green") g = val;
-                                            else if (cname == "blue") b = val;
-                                        }
-                                    }
-                                }
-                            }
-
-                            color = QColor(r, g, b, a);
-                            colorFound = true;
+                        bool ok = false;
+                        int val = xml.text().toInt(&ok);
+                        if (ok) {
+                            if (cname == "red") r = val;
+                            else if (cname == "green") g = val;
+                            else if (cname == "blue") b = val;
                         }
                     }
 
-                    if (colorFound) {
-                        palette.setColor(group, role, color);
-                    }
+                    color = QColor(r, g, b, a);
+                    colorFound = true;
+                }
+
+                if (colorFound) {
+                    palette.setColor(group, role, color);
                 }
             }
         }
     }
+    if (xml.hasError()) {
+        qWarning() << "Palette load error:" << xml.errorString();
+        return false;
+    }
     applyPalette(palette);
+    m_currentPreset = PresetPalette::System;
     return true;
 }
 

@@ -79,7 +79,12 @@ void QssManager::dropStyleSheet() {
 
 void QssManager::refreshFromPalette(const QPalette &palette) {
     initDefaultVariables(palette);
-    if (!m_currentStyleSheet.isEmpty()) applyCurrentStyleSheet();
+    if (!m_currentFile.isEmpty()) {
+        loadQssFromFile(m_currentFile);
+        applyCurrentStyleSheet();
+    }
+    if (!m_currentStyleSheet.isEmpty())
+        applyCurrentStyleSheet();
 }
 
 void QssManager::setVariable(const QString &varName, const QString &value) {

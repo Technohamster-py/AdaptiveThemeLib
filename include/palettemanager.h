@@ -3,36 +3,7 @@
 
 #include <QPalette>
 #include <QShortcut>
-#include <QMap>
-#include <QColor>
 #include <QApplication>
-
-
-static const QMap<QString, QPalette::ColorRole> roleMap = {
-        {"Window", QPalette::Window},
-        {"WindowText", QPalette::WindowText},
-        {"Base", QPalette::Base},
-        {"AlternateBase", QPalette::AlternateBase},
-        {"ToolTipBase", QPalette::ToolTipBase},
-        {"ToolTipText", QPalette::ToolTipText},
-        {"Text", QPalette::Text},
-        {"Button", QPalette::Button},
-        {"ButtonText", QPalette::ButtonText},
-        {"BrightText", QPalette::BrightText},
-        {"Highlight", QPalette::Highlight},
-        {"HighlightedText", QPalette::HighlightedText},
-        {"Link", QPalette::Link},
-        {"LinkVisited", QPalette::LinkVisited},
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        {"PlaceholderText", QPalette::PlaceholderText},
-#endif
-};
-
-static const QMap<QString, QPalette::ColorGroup> groupMap = {
-        {"active", QPalette::Active},
-        {"inactive", QPalette::Inactive},
-        {"disabled", QPalette::Disabled}
-};
 
 /**
  * @class PaletteManager
