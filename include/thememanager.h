@@ -7,11 +7,7 @@
 class ThemeManager : public QObject{
     Q_OBJECT
 public:
-
     static ThemeManager& instance();
-
-    void applyPresetPalette(PaletteManager::PresetPalette preset);
-    void applyPresetStyleSheet(QssManager::PresetQss preset);
 
     void setPaletteFile(const QString& paletteFilePath);
     void setPalettePreset(PaletteManager::PresetPalette preset);
