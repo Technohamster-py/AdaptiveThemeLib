@@ -22,6 +22,8 @@ public:
     void resetToSystemPalette();
     QPalette currentPalette() const {return m_currentPalette;};
 
+    PaletteManager(const PaletteManager&) = delete;
+    PaletteManager& operator=(const PaletteManager&) = delete;
 signals:
     void paletteChanged(const QPalette& palette);
 
@@ -32,9 +34,7 @@ public slots:
 
 private:
     PaletteManager() = default;
-    ~PaletteManager() = default;
-    PaletteManager(const PaletteManager&) = delete;
-    PaletteManager& operator=(const PaletteManager&) = delete;
+    ~PaletteManager() override = default;
 
     QPalette m_currentPalette;
     PresetPalette m_currentPreset = PresetPalette::System;
