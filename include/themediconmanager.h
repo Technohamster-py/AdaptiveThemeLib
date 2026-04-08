@@ -34,8 +34,6 @@ public:
     static QPixmap renderIconInline(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2);
     static QPixmap renderIconGrid(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2, int maxIconsPerRow = 3);
 
-    void onPaletteChanged(const QPalette &palette);
-
 signals:
     void themeChanged();
 
