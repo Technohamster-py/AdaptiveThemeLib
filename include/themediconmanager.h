@@ -29,7 +29,6 @@ public:
 
     template <typename T>
     void addIconTarget(const QString& svgPath, T* object, void (T::*setIconMethod)(const QIcon&), QSize size = QSize(24, 24));
-
     void addPixmapTarget(const QString &svgPath, QObject *receiver, std::function<void(const QPixmap &)> applyPixmap, bool override = true, QSize size = QSize(24, 24));
     static QPixmap renderIconInline(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2);
     static QPixmap renderIconGrid(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2, int maxIconsPerRow = 3);

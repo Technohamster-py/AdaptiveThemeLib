@@ -21,7 +21,6 @@ signals:
     void paletteChanged(const QString& fileName);
     void stylesheetChanged(const QString &fileName);
     void themeChanged();
-    void themeRefreshRequested();
 
 private:
     ThemeManager();
