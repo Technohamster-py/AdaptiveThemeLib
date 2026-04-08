@@ -8,7 +8,7 @@
 #include <QApplication>
 
 
-static QMap<QString, QPalette::ColorRole> roleMap = {
+static const QMap<QString, QPalette::ColorRole> roleMap = {
         {"Window", QPalette::Window},
         {"WindowText", QPalette::WindowText},
         {"Base", QPalette::Base},
@@ -28,7 +28,7 @@ static QMap<QString, QPalette::ColorRole> roleMap = {
 #endif
 };
 
-static QMap<QString, QPalette::ColorGroup> groupMap = {
+static const QMap<QString, QPalette::ColorGroup> groupMap = {
         {"active", QPalette::Active},
         {"inactive", QPalette::Inactive},
         {"disabled", QPalette::Disabled}
@@ -48,29 +48,23 @@ public:
 
     static PaletteManager& instance();
 
-    void applyPreset(PresetPalette theme);
-    void applyPalette(const QPalette& palette);
-
-    void loadFromXml(const QString &path);
     void resetToSystemPalette();
-
     QPalette currentPalette() const {return m_currentPalette;};
-
-    static void refreshStyleSheet();
 
 signals:
     void paletteChanged(const QPalette& palette);
     void paletteRequested(const QPalette& palette);
 
+public slots:
+    void applyPalette(const QPalette& palette);
+    void applyPreset(PresetPalette theme);
+    bool loadFromXml(const QString &path);
 
 private:
     PaletteManager() = default;
     ~PaletteManager() = default;
     PaletteManager(const PaletteManager&) = delete;
     PaletteManager& operator=(const PaletteManager&) = delete;
-
-    static QString generateStyleSheet(const QPalette &palette);
-    static  void updateIconManager();
 
     QPalette m_currentPalette;
     PresetPalette m_currentPreset = PresetPalette::System;
