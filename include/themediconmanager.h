@@ -42,6 +42,9 @@ protected:
 
 private:
     explicit ThemedIconManager(QObject* parent = nullptr);
+    ~ThemedIconManager() = default;
+    ThemedIconManager(const ThemedIconManager&) = delete;
+    ThemedIconManager& operator=(const ThemedIconManager&) = delete;
 
     struct IconTarget {
         QString path;
