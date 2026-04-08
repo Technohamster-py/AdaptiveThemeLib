@@ -53,11 +53,10 @@ public:
 
 signals:
     void paletteChanged(const QPalette& palette);
-    void paletteRequested(const QPalette& palette);
 
 public slots:
     void applyPalette(const QPalette& palette);
-    void applyPreset(PresetPalette theme);
+    void applyPreset(PresetPalette preset);
     bool loadFromXml(const QString &path);
 
 private:

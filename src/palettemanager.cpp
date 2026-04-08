@@ -23,13 +23,13 @@ void PaletteManager::applyPalette(const QPalette &palette) {
  * correspond to the selected visual style. The new palette is then applied to
  * the application instance.
  *
- * @param theme The preset theme to apply. It can be either PresetTheme::Light
+ * @param preset The preset theme to apply. It can be either PresetTheme::Light
  * or PresetTheme::Dark. If an unknown value is provided, the default Light
  * theme is applied.
  */
-void PaletteManager::applyPreset(PaletteManager::PresetPalette theme) {
+void PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
     QPalette palette;
-    switch (theme) {
+    switch (preset) {
         case PresetPalette::Light:
             palette.setColor(QPalette::Window, QColor("#f5f5f5"));
             palette.setColor(QPalette::WindowText, Qt::black);
