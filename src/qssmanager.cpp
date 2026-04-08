@@ -11,6 +11,7 @@ QString QssManager::presetName(PresetQss preset) {
         case PresetQss::Classic: return "Classic";
         case PresetQss::Modern: return "Modern";
         case PresetQss::LiquidGlass: return "LiquidGlass";
+        default: return "Unknown";
     }
 }
 
@@ -21,8 +22,14 @@ QssManager& QssManager::instance() {
 
 bool QssManager::loadQssFromFile(const QString &fileName) {
     QFile file(fileName);
-    if (!file.exists()) return false;
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+    if (!file.exists()) {
+        qWarning() << "File" << fileName << "does not exist";
+        return false;
+    }
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Unable to open file" << fileName << "because of" << file.errorString();
+        return false;
+    }
 
     QString rawQss = QString::fromUtf8(file.readAll());
     file.close();
