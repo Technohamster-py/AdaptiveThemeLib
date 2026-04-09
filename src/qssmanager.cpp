@@ -34,8 +34,8 @@ bool QssManager::loadQssFromFile(const QString &fileName) {
     QString rawQss = QString::fromUtf8(file.readAll());
     file.close();
 
-    m_currentFile = fileName;
-    m_currentStyleSheet = processVariables(rawQss);
+    m_raw = rawQss;
+    m_currentStyleSheet = processVariables(m_raw);
     return true;
 }
 
@@ -65,31 +65,36 @@ void QssManager::applyPreset(const PresetQss& preset) {
     applyQssFromFile(fileName);
 }
 
+void QssManager::applyQss(const QString &qss) {
+    m_raw = qss;
+    m_currentStyleSheet = processVariables(qss);
+    applyCurrentStyleSheet();
+}
+
 void QssManager::applyCurrentStyleSheet() {
-    if (!m_currentStyleSheet.isEmpty()) qApp->setStyleSheet(m_currentStyleSheet);
+    m_currentStyleSheet = processVariables(m_raw);
+
+    if (m_currentStyleSheet.isEmpty()) return;
+
+    qApp->setStyleSheet(m_currentStyleSheet);
     emit styleSheetUpdated();
 }
 
 void QssManager::dropStyleSheet() {
-    m_currentStyleSheet = "";
-    m_currentFile = "";
+    m_currentStyleSheet.clear();
+    m_raw.clear();
     qApp->setStyleSheet("");
     emit styleSheetUpdated();
 }
 
 void QssManager::refreshFromPalette(const QPalette &palette) {
     initDefaultVariables(palette);
-    if (!m_currentFile.isEmpty()) {
-        loadQssFromFile(m_currentFile);
-        applyCurrentStyleSheet();
-    }
-    if (!m_currentStyleSheet.isEmpty())
-        applyCurrentStyleSheet();
+    applyCurrentStyleSheet();
 }
 
 void QssManager::setVariable(const QString &varName, const QString &value) {
     m_variables[varName] = value;
-    if (!m_currentStyleSheet.isEmpty()) loadQssFromFile(m_currentFile);
+    applyCurrentStyleSheet();
 }
 
 void QssManager::setVariable(const QString &varName, const QColor &color) {
@@ -98,6 +103,11 @@ void QssManager::setVariable(const QString &varName, const QColor &color) {
 
 void QssManager::setVariable(const QString &varName, int value) {
     setVariable(varName, QString::number(value));
+}
+
+void QssManager::setPalette(const QPalette &palette) {
+    initDefaultVariables(palette);
+    applyCurrentStyleSheet();
 }
 
 QString QssManager::processVariables(const QString &qss) {

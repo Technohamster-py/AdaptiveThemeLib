@@ -16,16 +16,20 @@ public:
     void applyCurrentStyleSheet();
     void dropStyleSheet();
 
-    void setVariable(const QString& varName, const QString& value);
     void setVariable(const QString& varName, const QColor& color);
+    void setVariable(const QString& varName, const QString& value);
     void setVariable(const QString& varName, int value);
+    void setPalette(const QPalette& palette);
 
+    QHash<QString,QString> variables() const {return m_variables;};
+    QString currentQss() const {return m_currentStyleSheet;};
 signals:
     void styleSheetUpdated();
 
 public slots:
     void applyQssFromFile(const QString& fileName);
     void applyPreset(const PresetQss& preset);
+    void applyQss(const QString& qss);
     void refreshFromPalette(const QPalette& palette);
 
 protected:
@@ -41,7 +45,7 @@ private:
     void initDefaultVariables(const QPalette& palette);
 
     QString m_currentStyleSheet;
-    QString m_currentFile;
+    QString m_raw;
     QHash<QString,QString> m_variables;
 };
 
