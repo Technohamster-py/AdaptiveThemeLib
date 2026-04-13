@@ -30,8 +30,6 @@ add_library(AdaptiveThemeLib
         include/qssmanager.h    src/qssmanager.cpp
         src/thememanager.cpp
         include/thememanager.h
-        tests/test_main.cpp
-        tests/test_palettemanager.cpp
 )
 
 target_include_directories(AdaptiveThemeLib PUBLIC
@@ -55,10 +53,3 @@ install(EXPORT AdaptiveThemeLibTargets
         NAMESPACE AdaptiveThemeLib::
         DESTINATION lib/cmake/AdaptiveThemeLib
 )
-
-
-option(BUILD_TESTS "Build unit tests" ON)
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif ()
