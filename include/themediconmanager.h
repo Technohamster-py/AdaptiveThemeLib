@@ -29,7 +29,7 @@ public:
     static ThemedIconManager& instance();
 
     template<typename T>
-    void addIconTarget(const QString &svgPath, T *object, void(T::*setIconMethod)(const QIcon &),QSize size)  {
+    void addIconTarget(const QString &svgPath, T *object, void(T::*setIconMethod)(const QIcon &),QSize size = QSize(24, 24))  {
         if (!object || svgPath.isEmpty())
             return;
 
