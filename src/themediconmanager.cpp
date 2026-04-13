@@ -101,7 +101,7 @@ QPixmap ThemedIconManager::getPixmapFromCache(const IconTarget &target) {
                            target.size.height());
     QString *cachedSvg = m_svgCache[cacheKey];
     if (!cachedSvg) {
-        if (addSvgToCache(target.path, cacheKey)) getPixmapFromCache(target);
+        if (addSvgToCache(target.path, cacheKey)) return getPixmapFromCache(target);
         else return {};
     }
 
