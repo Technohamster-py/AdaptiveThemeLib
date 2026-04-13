@@ -72,37 +72,8 @@ void ThemedIconManager::regenerateAndApplyIcon(const IconTarget &target) {
     if (!target.receiver)
         return;
 
-    QString cacheKey = target.path + "_" + QString::number(target.size.width()) + "x" + QString::number(
-                           target.size.height());
-    QIcon *cachedIcon = m_iconCache[cacheKey];
-    if (cachedIcon) {
-        target.applyIcon(*cachedIcon);
-        return;
-    }
-
-    QFile file(target.path);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Cannot open SVG:" << target.path;
-        return;
-    }
-
-    QString svg = QString::fromUtf8(file.readAll());
-    file.close();
-
-    svg.replace(QRegularExpression(R"(currentColor)"), themeColor().name());
-
-    QSvgRenderer renderer;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-    renderer.setOptions(QSvgRenderer::Option::LoadExternalResourcesDisabled |
-                        QSvgRenderer::Option::ScriptingDisabled)
-#endif
-    renderer.load(svg.toUtf8());
-    QPixmap pixmap(target.size);
-    pixmap.fill(Qt::transparent);
-
-    QPainter painter(&pixmap);
-    renderer.render(&painter);
-    painter.end();
+    QPixmap pixmap = getPixmapFromCache(target);
+    if (pixmap.isNull()) return;
 
     QIcon icon(pixmap);
 
@@ -111,8 +82,46 @@ void ThemedIconManager::regenerateAndApplyIcon(const IconTarget &target) {
 
     if (target.applyPixmap)
         target.applyPixmap(pixmap);
+}
 
-    m_iconCache.insert(cacheKey, new QIcon(pixmap));
+bool ThemedIconManager::addSvgToCache(const QString &path, const QString &key) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Cannot open SVG:" << path;
+        return false;
+    }
+    QString svg = QString::fromUtf8(file.readAll());
+    file.close();
+    m_svgCache.insert(key, new QString(svg));
+    return true;
+}
+
+QPixmap ThemedIconManager::getPixmapFromCache(const IconTarget &target) {
+    QString cacheKey = target.path + "_" + QString::number(target.size.width()) + "x" + QString::number(
+                           target.size.height());
+    QString *cachedSvg = m_svgCache[cacheKey];
+    if (!cachedSvg) {
+        if (addSvgToCache(target.path, cacheKey)) getPixmapFromCache(target);
+        else return {};
+    }
+
+    QString svgCopy = *cachedSvg;
+    svgCopy.replace(QRegularExpression(R"(currentColor)"), themeColor().name());
+
+    QSvgRenderer renderer;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    renderer.setOptions(QSvgRenderer::Option::LoadExternalResourcesDisabled |
+                        QSvgRenderer::Option::ScriptingDisabled)
+#endif
+    renderer.load(svgCopy.toUtf8());
+    QPixmap pixmap(target.size);
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter(&pixmap);
+    renderer.render(&painter);
+    painter.end();
+
+    return pixmap;
 }
 
 

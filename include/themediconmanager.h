@@ -76,9 +76,12 @@ private:
     };
 
     QList<IconTarget> m_targets;
-    QCache<QString, QIcon> m_iconCache;
+    QCache<QString, QString> m_svgCache;
 
-    void regenerateAndApplyIcon(const IconTarget& target) ;
+    void regenerateAndApplyIcon(const IconTarget& target);
+
+bool addSvgToCache(const QString &path, const QString &key);
+    QPixmap getPixmapFromCache(const IconTarget& target);
     void updateAllIcons();
 
     static QColor themeColor();
