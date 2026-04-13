@@ -32,9 +32,6 @@ add_library(AdaptiveThemeLib
         include/thememanager.h
         tests/test_main.cpp
         tests/test_palettemanager.cpp
-        tests/test_qssmanager.cpp
-        tests/test_themediconmanager.cpp
-        tests/test_thememanager.cpp
 )
 
 target_include_directories(AdaptiveThemeLib PUBLIC

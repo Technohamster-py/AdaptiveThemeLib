@@ -4,13 +4,19 @@
 #include <QDebug>
 #include "palettemanager.h"
 
+class TestablePaletteManager : public PaletteManager {
+public:
+    using PaletteManager::applyPreset;
+};
 
 class TestPaletteManager : public QObject {
     Q_OBJECT
 
 private slots:
+    // Эти функции будут автоматически вызваны Qt Test
     void initTestCase() {
         qDebug() << "=== Starting PaletteManager tests ===";
+        // Этот метод вызывается один раз перед всеми тестами
         int fakeArgc = 1;
         char fakeArgv[] = {"test"};
         char* fakeArgvPtr = fakeArgv;
@@ -23,15 +29,20 @@ private slots:
     }
 
     void init() {
+        // Вызывается перед КАЖДЫМ тестом
         m_manager = &PaletteManager::instance();
         m_manager->resetToSystemPalette();
     }
 
     void cleanup() {
-
+        // Вызывается после КАЖДОГО теста
+        // Очищаем состояние
     }
 
+    // ========== ТЕСТЫ ==========
+
     void testSingleton() {
+        // Проверяем, что instance() возвращает тот же объект
         PaletteManager& instance1 = PaletteManager::instance();
         PaletteManager& instance2 = PaletteManager::instance();
         QCOMPARE(&instance1, &instance2);
@@ -41,11 +52,13 @@ private slots:
         m_manager->applyPreset(PaletteManager::PresetPalette::Light);
         QPalette palette = m_manager->currentPalette();
 
+        // Проверяем цвета
         QCOMPARE(palette.color(QPalette::Window), QColor("#f5f5f5"));
         QCOMPARE(palette.color(QPalette::WindowText), Qt::black);
         QCOMPARE(palette.color(QPalette::Base), Qt::white);
         QCOMPARE(palette.color(QPalette::Highlight), QColor("#2196f3"));
 
+        // Проверяем, что палитра действительно применена к QApplication
         QCOMPARE(qApp->palette().color(QPalette::Window), QColor("#f5f5f5"));
     }
 
@@ -60,18 +73,23 @@ private slots:
     }
 
     void testResetToSystem() {
+        // Сначала применяем темную тему
         m_manager->applyPreset(PaletteManager::PresetPalette::Dark);
         QPalette darkPalette = m_manager->currentPalette();
 
+        // Сбрасываем на системную
         m_manager->resetToSystemPalette();
         QPalette systemPalette = m_manager->currentPalette();
 
+        // Системная палитра не должна совпадать с темной
         QVERIFY(systemPalette != darkPalette);
 
+        // Проверяем, что сброс действительно изменил палитру приложения
         QVERIFY(qApp->palette() != darkPalette);
     }
 
     void testLoadFromValidXml() {
+        // Создаем временный XML файл
         QString xmlContent =
             "<?xml version=\"1.0\"?>"
             "<palette>"
@@ -99,6 +117,7 @@ private slots:
     }
 
     void testLoadFromInvalidXml() {
+        // Создаем невалидный XML
         QString invalidXml = "<?xml version=\"1.0\"?><broken>tag";
 
         QTemporaryFile tempFile;
@@ -107,8 +126,9 @@ private slots:
         tempFile.close();
 
         bool result = m_manager->loadFromXml(tempFile.fileName());
-        QVERIFY(result == false);
+        QVERIFY(result == false); // Должен вернуть false при ошибке
 
+        // Палитра не должна измениться
         QPalette original = m_manager->currentPalette();
         QCOMPARE(qApp->palette(), original);
     }
@@ -126,7 +146,7 @@ private slots:
         QCOMPARE(spy.count(), 1);
 
         QList<QVariant> arguments = spy.takeFirst();
-        const QPalette emittedPalette = arguments.at(0).value<QPalette>();
+        QPalette emittedPalette = arguments.at(0).value<QPalette>();
         QCOMPARE(emittedPalette.color(QPalette::Window), QColor("#f5f5f5"));
     }
 
@@ -144,7 +164,10 @@ private:
     QApplication* m_app;
 };
 
+// Регистрируем тесты
 int testPaletteManager() {
     TestPaletteManager test;
     return QTest::qExec(&test);
 }
+
+#include "test_palettemanager.moc"
