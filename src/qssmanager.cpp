@@ -3,21 +3,96 @@
 #include <QApplication>
 #include <QRegularExpression>
 #include <QDebug>
+#include <QDir>
+#include <QStyleFactory>
 
 QString QssManager::presetName(PresetQss preset) {
     switch (preset) {
-        case PresetQss::System: return "System";
         case PresetQss::Material: return "Material";
         case PresetQss::Classic: return "Classic";
         case PresetQss::Modern: return "Modern";
-        case PresetQss::LiquidGlass: return "LiquidGlass";
         default: return "Unknown";
     }
+}
+
+QssManager::PresetQss QssManager::stringToPreset(const QString &name) {
+    static QMap<QString, PresetQss> presetMap = {
+        {"System", PresetQss::System},
+        {"Material", PresetQss::Material},
+        {"Classic", PresetQss::Classic},
+        {"Modern", PresetQss::Modern},
+    };
+    return presetMap.value(name);
 }
 
 QssManager& QssManager::instance() {
     static QssManager instance;
     return instance;
+}
+
+QList<QssManager::StyleInfo> QssManager::availableStyles() const {
+    QList<StyleInfo> result;
+    result.append(m_nativeStyles.values());
+    result.append(m_qssStyles.values());
+    return result;
+}
+
+bool QssManager::applyStyle(const QString &styleName) {
+    if (m_nativeStyles.contains(styleName)) {
+        return applyNativeStyle(styleName);
+    }
+
+    if (m_qssStyles.contains(styleName)) {
+        return applyQssStyle(styleName);
+    }
+
+    qWarning() << "Style not found: " << styleName;
+    return false;
+}
+
+bool QssManager::applyNativeStyle(const QString &styleName) {
+    if (!m_nativeStyles.contains(styleName)) {
+        qWarning() << "Native style not found: " << styleName;
+        return false;
+    }
+    dropStyleSheet();
+
+    QStyle *style = QStyleFactory::create(styleName);
+    if (style) {
+        qApp->setStyle(style);
+        m_currentStyleType = StyleType::Native;
+        m_currentStyleName = styleName;
+
+        emit nativeStyleUpdated(styleName);
+        emit styleChanged(styleName, StyleType::Native);
+
+        qDebug() << "Applying native style" << styleName;
+        return true;
+    }
+    qWarning() << "Error while applying native style: " << styleName;
+    return false;
+}
+
+bool QssManager::applyQssStyle(const QString &styleName) {
+    if (!m_qssStyles.contains(styleName)) {
+        qWarning() << "Qss style not found: " << styleName;
+        return false;
+    }
+
+    if (m_customStylesheets.contains(styleName)) {
+        applyQssFromFile(m_customStylesheets[styleName]);
+    }
+    else {
+        applyPreset();
+    }
+
+    m_currentStyleType = StyleType::Qss;
+    m_currentStyleName = styleName;
+
+    emit styleChanged(styleName, StyleType::Qss);
+    emit qssStyleUpdated(styleName);
+
+    return true;
 }
 
 bool QssManager::loadQssFromFile(const QString &fileName) {
@@ -73,7 +148,7 @@ void QssManager::applyCurrentStyleSheet() {
 void QssManager::dropStyleSheet() {
     m_currentStyleSheet = "";
     m_currentFile = "";
-    qApp->setStyleSheet("");
+    qApp->setStyleSheet(QString());
     emit styleSheetUpdated();
 }
 
@@ -98,6 +173,56 @@ void QssManager::setVariable(const QString &varName, const QColor &color) {
 
 void QssManager::setVariable(const QString &varName, int value) {
     setVariable(varName, QString::number(value));
+}
+
+void QssManager::setUserQssDirectory(const QString &dir) {
+    m_userQssDirectory = dir;
+    emit userDirectoryChanged(dir);
+}
+
+void QssManager::scanNativeStyles() {
+    m_nativeStyles.clear();
+    QStringList nativeStyles = QStyleFactory::keys();
+
+    for (const QString &styleName : nativeStyles) {
+        StyleInfo styleInfo;
+        styleInfo.name = styleName;
+        styleInfo.type = StyleType::Native;
+
+        m_nativeStyles[styleName] = styleInfo;
+    }
+}
+
+void QssManager::scanQssStyles() {
+    m_qssStyles.clear();
+    QList<PresetQss> presets = {PresetQss::Material, PresetQss::Classic, PresetQss::Modern};
+
+    for (PresetQss preset : presets) {
+        StyleInfo info;
+        info.name = presetName(preset);
+        info.type = StyleType::Qss;
+
+        m_qssStyles[info.name] = info;
+    }
+
+    QDir dir(m_userQssDirectory);
+    if (!dir.exists()) {
+        qWarning() << "Specified user qss directory"<< m_userQssDirectory << " does not exist";
+        return;
+    }
+
+    QStringList qssFiles = dir.entryList(QStringList() << "*.qss",QDir::Files);
+    for (const QString &fileName : qssFiles) {
+        QString themeName = QFileInfo(fileName).baseName();
+        if (m_qssStyles.contains(themeName)) continue;
+
+        StyleInfo info;
+        info.name = fileName;
+        info.type = StyleType::Qss;
+
+        m_qssStyles[info.name] = info;
+        m_customStylesheets[themeName] = fileName;
+    }
 }
 
 QString QssManager::processVariables(const QString &qss) {
