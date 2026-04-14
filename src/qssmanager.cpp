@@ -83,7 +83,7 @@ bool QssManager::applyQssStyle(const QString &styleName) {
         applyQssFromFile(m_customStylesheets[styleName]);
     }
     else {
-        applyPreset();
+        applyPreset(stringToPreset(styleName));
     }
 
     m_currentStyleType = StyleType::Qss;
