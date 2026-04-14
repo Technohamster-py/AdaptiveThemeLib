@@ -206,3 +206,8 @@ bool PaletteManager::loadFromXml(const QString &path) {
 void PaletteManager::resetToSystemPalette() {
     applyPalette(QPalette());
 }
+
+void PaletteManager::setUserPaletteDir(const QString &dir) {
+    m_userPaletteDir = dir;
+    emit userDirectoryChanged(dir);
+}

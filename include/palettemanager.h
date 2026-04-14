@@ -22,7 +22,11 @@ public:
     void resetToSystemPalette();
     QPalette currentPalette() const {return m_currentPalette;};
 
+    void setUserPaletteDir(const QString& dir);
+    QString userPaletteDir() const {return m_userPaletteDir;};
+
 signals:
+    void userDirectoryChanged(QString path);
     void paletteChanged(const QPalette& palette);
 
 public slots:
@@ -35,6 +39,8 @@ private:
     ~PaletteManager() = default;
     PaletteManager(const PaletteManager&) = delete;
     PaletteManager& operator=(const PaletteManager&) = delete;
+
+    QString m_userPaletteDir = QApplication::applicationDirPath() + "/themes/";
 
     QPalette m_currentPalette;
     PresetPalette m_currentPreset = PresetPalette::System;

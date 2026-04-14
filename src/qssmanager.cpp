@@ -30,7 +30,9 @@ QssManager& QssManager::instance() {
     return instance;
 }
 
-QList<QssManager::StyleInfo> QssManager::availableStyles() const {
+QList<QssManager::StyleInfo> QssManager::availableStyles() {
+    scanNativeStyles();
+    scanQssStyles();
     QList<StyleInfo> result;
     result.append(m_nativeStyles.values());
     result.append(m_qssStyles.values());
@@ -112,6 +114,11 @@ bool QssManager::loadQssFromFile(const QString &fileName) {
     m_currentFile = fileName;
     m_currentStyleSheet = processVariables(rawQss);
     return true;
+}
+
+QssManager::QssManager() {
+    scanNativeStyles();
+    scanQssStyles();
 }
 
 void QssManager::applyQssFromFile(const QString &fileName) {

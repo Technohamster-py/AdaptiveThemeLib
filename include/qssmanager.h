@@ -23,7 +23,7 @@ public:
 
     static QssManager& instance();
 
-    QList<StyleInfo> availableStyles() const;
+    QList<StyleInfo> availableStyles();
 
     QList<StyleInfo> nativeStyles() const {return m_nativeStyles.values();}
     QList<StyleInfo> qssStyles() const {return m_qssStyles.values();}
@@ -40,6 +40,7 @@ public:
     void setVariable(const QString& varName, int value);
 
     void setUserQssDirectory(const QString& dir);
+    QString userQssDirectory() const {return m_userQssDirectory;};
 
 signals:
     void styleSheetUpdated();
@@ -57,7 +58,7 @@ protected:
     bool loadQssFromFile(const QString& fileName);
 
 private:
-    QssManager() = default;
+    QssManager();
     ~QssManager() = default;
     QssManager(const QssManager&) = delete;
     QssManager& operator=(const QssManager&) = delete;
