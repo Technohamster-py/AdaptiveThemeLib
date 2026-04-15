@@ -30,7 +30,7 @@ bool ThemeManager::addCustomPalette(const QString &fileName) {
     QDir destDir(dir);
     if (!destDir.exists()) destDir.mkpath(".");
 
-    QFile::copy(fileName, dest);
+    return QFile::copy(fileName, dest);
 }
 
 bool ThemeManager::addCustomStyle(const QString &fileName) {
@@ -50,7 +50,7 @@ bool ThemeManager::addCustomStyle(const QString &fileName) {
     QDir destDir(dir);
     if (!destDir.exists()) destDir.mkpath(".");
 
-    QFile::copy(fileName, dest);
+    return QFile::copy(fileName, dest);
 }
 
 bool ThemeManager::applyStyle(const QString &styleName) {

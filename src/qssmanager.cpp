@@ -228,7 +228,7 @@ void QssManager::scanQssStyles() {
         info.type = StyleType::Qss;
 
         m_qssStyles[info.name] = info;
-        m_customStylesheets[themeName] = fileName;
+        m_customStylesheets[themeName] = dir.absoluteFilePath(fileName);
     }
 }
 

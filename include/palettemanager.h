@@ -52,7 +52,6 @@ private:
     QStringList m_availablePalettes;
     QHash<QString, QString> m_customPalettes;
     QPalette m_currentPalette;
-    PresetPalette m_currentPreset = PresetPalette::System;
 };
 
 

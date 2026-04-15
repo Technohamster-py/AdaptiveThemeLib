@@ -236,7 +236,6 @@ bool PaletteManager::loadFromXml(const QString &path) {
         return false;
     }
     applyPalette(palette);
-    m_currentPreset = PresetPalette::System;
     return true;
 }
 
@@ -263,7 +262,7 @@ void PaletteManager::scanCustomPalettes() {
     for (const QString &fileName: paletteFiles) {
         QString paletteName = QFileInfo(fileName).baseName();
         if (!m_availablePalettes.contains(paletteName)) {
-            m_customPalettes[paletteName] = fileName;
+            m_customPalettes[paletteName] = dir.absoluteFilePath(fileName);
             m_availablePalettes.append(paletteName);
         }
     }
