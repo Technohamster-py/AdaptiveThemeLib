@@ -9,14 +9,16 @@ class ThemeManager : public QObject{
 public:
     static ThemeManager& instance();
 
-    void setPaletteFile(const QString& paletteFilePath);
-    void setPalettePreset(PaletteManager::PresetPalette preset);
+    bool addCustomPalette(const QString& fileName);
+    bool addCustomStyle(const QString& fileName);
 
-    void setStyleSheetFile(const QString& stylesheetFilePath);
-    void setStyleSheetPreset(QssManager::PresetQss preset);
+    bool applyStyle(const QString& styleName);
+    bool applyPalette(const QString& paletteName);
 
+    QList<QssManager::StyleInfo> availableStyles() const {return QssManager::instance().availableStyles();};
+    QStringList availablePalettes() const {return PaletteManager::instance().availablePalettes();};
     void resetToSystemTheme();
-    void refresh();
+
 signals:
     void paletteChanged(const QString& fileName);
     void stylesheetChanged(const QString &fileName);
