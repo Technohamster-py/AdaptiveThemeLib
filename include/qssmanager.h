@@ -10,7 +10,7 @@
 class QssManager : public QObject{
     Q_OBJECT
 public:
-    enum class PresetQss {System, Material, Classic, Modern};
+    enum class PresetQss {System, Material, Classic, Modern, Undefined};
     Q_ENUM(PresetQss)
     enum class StyleType{Native, Qss};
     struct  StyleInfo {

@@ -22,7 +22,7 @@ QssManager::PresetQss QssManager::stringToPreset(const QString &name) {
         {"Classic", PresetQss::Classic},
         {"Modern", PresetQss::Modern},
     };
-    return presetMap.value(name);
+    return presetMap.value(name, PresetQss::Undefined);
 }
 
 QssManager& QssManager::instance() {

@@ -35,6 +35,28 @@ static const QHash<QString, QPalette::ColorGroup>& getGroupMap() {
     return groupMap;
 }
 
+QString PaletteManager::presetName(PresetPalette preset) {
+    switch (preset) {
+        case PresetPalette::Light:
+            return "Light";
+        case PresetPalette::Dark:
+            return "Dark";
+        case PresetPalette::System:
+            return "System";
+        default:
+            return "Unknown";
+    }
+}
+
+PaletteManager::PresetPalette PaletteManager::presetFromName(const QString &name) {
+    static QMap<QString, PaletteManager::PresetPalette> presetMap = {
+        {"System", PresetPalette::System},
+        {"Light", PresetPalette::Light},
+        {"Dark", PresetPalette::Dark},
+    };
+    return presetMap.value(name, PresetPalette::Undefined);
+}
+
 PaletteManager &PaletteManager::instance() {
     static PaletteManager instance;
     return instance;

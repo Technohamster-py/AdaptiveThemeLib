@@ -15,7 +15,9 @@
 class PaletteManager : public QObject {
     Q_OBJECT
 public:
-    enum class PresetPalette{System, Light, Dark};
+    enum class PresetPalette{System, Light, Dark, Undefined};
+    QString presetName(PresetPalette preset);
+    PresetPalette presetFromName(const QString &name);
 
     static PaletteManager& instance();
 
