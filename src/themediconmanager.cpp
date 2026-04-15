@@ -15,9 +15,8 @@
  *
  * @param parent A QObject pointer representing the parent object of this instance.
  */
-ThemedIconManager::ThemedIconManager(QObject* parent)
-        : QObject(parent)
-{
+ThemedIconManager::ThemedIconManager(QObject *parent)
+    : QObject(parent) {
     qApp->installEventFilter(this);
 }
 
@@ -32,7 +31,7 @@ ThemedIconManager::ThemedIconManager(QObject* parent)
  * @return Returns false to indicate the event was not fully handled
  *         and should be processed further by other filters or the default handler.
  */
-bool ThemedIconManager::eventFilter(QObject*, QEvent* event) {
+bool ThemedIconManager::eventFilter(QObject *, QEvent *event) {
     if (event->type() == QEvent::ApplicationPaletteChange)
         updateAllIcons();
     return false;
@@ -47,12 +46,12 @@ bool ThemedIconManager::eventFilter(QObject*, QEvent* event) {
  */
 void ThemedIconManager::updateAllIcons() {
     m_targets.erase(std::remove_if(m_targets.begin(), m_targets.end(),
-                                   [](const IconTarget& target) {
+                                   [](const IconTarget &target) {
                                        return target.receiver.isNull();
                                    }),
                     m_targets.end());
 
-    for (const auto& target : m_targets) {
+    for (const auto &target: m_targets) {
         regenerateAndApplyIcon(target);
     }
     emit themeChanged();
@@ -69,28 +68,12 @@ void ThemedIconManager::updateAllIcons() {
  *               the size for the pixmap, and the methods to apply the QIcon or QPixmap.
  *               If the target receiver is null, the operation is aborted.
  */
-void ThemedIconManager::regenerateAndApplyIcon(const IconTarget& target) {
+void ThemedIconManager::regenerateAndApplyIcon(const IconTarget &target) {
     if (!target.receiver)
         return;
 
-    QFile file(target.path);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Cannot open SVG:" << target.path;
-        return;
-    }
-
-    QString svg = QString::fromUtf8(file.readAll());
-    file.close();
-
-    svg.replace(QRegularExpression(R"(currentColor)"), themeColor().name());
-
-    QSvgRenderer renderer(svg.toUtf8());
-    QPixmap pixmap(target.size);
-    pixmap.fill(Qt::transparent);
-
-    QPainter painter(&pixmap);
-    renderer.render(&painter);
-    painter.end();
+    QPixmap pixmap = getPixmapFromCache(target);
+    if (pixmap.isNull()) return;
 
     QIcon icon(pixmap);
 
@@ -99,6 +82,46 @@ void ThemedIconManager::regenerateAndApplyIcon(const IconTarget& target) {
 
     if (target.applyPixmap)
         target.applyPixmap(pixmap);
+}
+
+bool ThemedIconManager::addSvgToCache(const QString &path, const QString &key) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Cannot open SVG:" << path;
+        return false;
+    }
+    QString svg = QString::fromUtf8(file.readAll());
+    file.close();
+    m_svgCache.insert(key, new QString(svg));
+    return true;
+}
+
+QPixmap ThemedIconManager::getPixmapFromCache(const IconTarget &target) {
+    QString cacheKey = target.path + "_" + QString::number(target.size.width()) + "x" + QString::number(
+                           target.size.height());
+    QString *cachedSvg = m_svgCache[cacheKey];
+    if (!cachedSvg) {
+        if (addSvgToCache(target.path, cacheKey)) return getPixmapFromCache(target);
+        else return {};
+    }
+
+    QString svgCopy = *cachedSvg;
+    svgCopy.replace(QRegularExpression(R"(currentColor)"), themeColor().name());
+
+    QSvgRenderer renderer;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    renderer.setOptions(QSvgRenderer::Option::LoadExternalResourcesDisabled |
+                        QSvgRenderer::Option::ScriptingDisabled)
+#endif
+    renderer.load(svgCopy.toUtf8());
+    QPixmap pixmap(target.size);
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter(&pixmap);
+    renderer.render(&painter);
+    painter.end();
+
+    return pixmap;
 }
 
 
@@ -139,15 +162,15 @@ ThemedIconManager &ThemedIconManager::instance() {
 void ThemedIconManager::addPixmapTarget(const QString &svgPath, QObject *receiver,
                                         std::function<void(const QPixmap &)> applyPixmap,
                                         bool override, QSize size) {
-
     if (!receiver || svgPath.isEmpty()) return;
 
-    if (override)
-    m_targets.erase(std::remove_if(m_targets.begin(), m_targets.end(),
-                                   [receiver](const IconTarget& t) {
-                                       return t.receiver == receiver;
-                                   }),
-                    m_targets.end());
+    if (override) {
+        m_targets.erase(std::remove_if(m_targets.begin(), m_targets.end(),
+                                       [receiver](const IconTarget &t) {
+                                           return t.receiver.data() == receiver;
+                                       }),
+                        m_targets.end());
+    }
     IconTarget target;
     target.path = svgPath;
     target.size = size;
@@ -184,7 +207,7 @@ QPixmap ThemedIconManager::renderIconInline(const QStringList &svgPaths, QSize i
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
     int x = 0;
-    for (const auto& path : svgPaths) {
+    for (const auto &path: svgPaths) {
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly))
             continue;
@@ -225,7 +248,8 @@ QPixmap ThemedIconManager::renderIconInline(const QStringList &svgPaths, QSize i
  * @return A QPixmap object representing the rendered grid of icons. If the provided
  *         list of SVG paths is empty, an empty QPixmap is returned.
  */
-QPixmap ThemedIconManager::renderIconGrid(const QStringList &svgPaths, QSize iconSize, int spacing, int maxIconsPerRow) {
+QPixmap ThemedIconManager::renderIconGrid(const QStringList &svgPaths, QSize iconSize, int spacing,
+                                          int maxIconsPerRow) {
     if (svgPaths.isEmpty()) return {};
 
     const qreal dpr = qApp->devicePixelRatio();
@@ -250,7 +274,7 @@ QPixmap ThemedIconManager::renderIconGrid(const QStringList &svgPaths, QSize ico
 
     int x = 0, y = 0;
     int count = 0;
-    for (const auto& path : svgPaths) {
+    for (const auto &path: svgPaths) {
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly)) continue;
 

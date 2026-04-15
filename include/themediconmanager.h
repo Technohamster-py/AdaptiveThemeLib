@@ -1,6 +1,7 @@
 #ifndef THEMEDICONMANAGER_H
 #define THEMEDICONMANAGER_H
 
+#include <QCache>
 #include <QObject>
 #include <QPointer>
 #include <QSize>
@@ -27,8 +28,8 @@ Q_OBJECT
 public:
     static ThemedIconManager& instance();
 
-    template <typename T>
-    void addIconTarget(const QString& svgPath, T* object, void (T::*setIconMethod)(const QIcon&), QSize size = QSize(24, 24)) {
+    template<typename T>
+    void addIconTarget(const QString &svgPath, T *object, void(T::*setIconMethod)(const QIcon &),QSize size = QSize(24, 24))  {
         if (!object || svgPath.isEmpty())
             return;
 
@@ -50,13 +51,9 @@ public:
         m_targets.append(target);
         regenerateAndApplyIcon(m_targets.last());
     }
-
-    void addPixmapTarget(const QString &svgPath, QObject *receiver, std::function<void(const QPixmap &)> applyPixmap,
-                         bool override = true, QSize size = QSize(24, 24));
-
-static QPixmap renderIconInline(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2);
-
-static QPixmap renderIconGrid(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2, int maxIconsPerRow = 3);
+    void addPixmapTarget(const QString &svgPath, QObject *receiver, std::function<void(const QPixmap &)> applyPixmap, bool override = true, QSize size = QSize(24, 24));
+    static QPixmap renderIconInline(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2);
+    static QPixmap renderIconGrid(const QStringList& svgPaths, QSize iconSize = QSize(16, 16), int spacing = 2, int maxIconsPerRow = 3);
 
 signals:
     void themeChanged();
@@ -66,6 +63,9 @@ protected:
 
 private:
     explicit ThemedIconManager(QObject* parent = nullptr);
+    ~ThemedIconManager() = default;
+    ThemedIconManager(const ThemedIconManager&) = delete;
+    ThemedIconManager& operator=(const ThemedIconManager&) = delete;
 
     struct IconTarget {
         QString path;
@@ -76,11 +76,16 @@ private:
     };
 
     QList<IconTarget> m_targets;
+    QCache<QString, QString> m_svgCache;
 
-    static void regenerateAndApplyIcon(const IconTarget& target) ;
+    void regenerateAndApplyIcon(const IconTarget& target);
+
+bool addSvgToCache(const QString &path, const QString &key);
+    QPixmap getPixmapFromCache(const IconTarget& target);
     void updateAllIcons();
 
-static QColor themeColor();
+    static QColor themeColor();
 };
+
 
 #endif

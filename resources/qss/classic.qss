@@ -1,0 +1,81 @@
+QMainWindow, QDialog {
+	background-color: $window;
+}
+
+QDockWidget {
+    background-color: $window;
+}
+
+QDockWidget::title {
+    background-color: $mid;
+    padding: 4px 8px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+QPushButton {
+	background-color: $button;
+	color: $buttonText;
+	border: 1px solid $dark;
+	border-radius: 4px;
+	padding: 6px 12px;
+}
+
+QPushButton:hover {
+	background-color: $highlight;
+	color: $highlightedText;
+	border-color: $highlight;
+}
+
+QLineEdit, QTextEdit, QSpinBox, QComboBox {
+	background-color: $base;
+	color: $text;
+	border: 1px solid $dark;
+	border-radius: 4px;
+	padding: 4px 8px;
+}
+
+QLineEdit:focus, QSpinBox:focus {
+	border-color: $highlight;
+}
+
+QTabWidget::pane {
+	border: 1px solid $dark;
+	background-color: $window;
+}
+
+QTabBar::tab {
+	background-color: $button;
+	padding: 6px 12px;
+	margin-right: 2px;
+}
+
+QTabBar::tab:selected {
+	background-color: $window;
+	border-bottom: 2px solid $highlight;
+}
+
+QScrollBar:vertical {
+	background: $window;
+	width: 10px;
+}
+
+QScrollBar::handle:vertical {
+	background: $dark;
+	border-radius: 5px;
+	min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background: $highlight;
+}
+
+QMenu {
+	background-color: $base;
+	border: 1px solid $dark;
+}
+
+QMenu::item:selected {
+	background-color: $highlight;
+	color: $highlightedText;
+}

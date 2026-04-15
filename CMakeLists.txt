@@ -21,9 +21,15 @@ find_package(Qt6 REQUIRED COMPONENTS
         Svg
 )
 
+set(RESOURCES resources/resources.qrc)
+qt6_add_resources(AdaptiveThemeLib ${RESOURCES})
+
 add_library(AdaptiveThemeLib
-        include/thememanager.h src/thememanager.cpp
+        include/palettemanager.h src/palettemanager.cpp
         include/themediconmanager.h src/themediconmanager.cpp
+        include/qssmanager.h    src/qssmanager.cpp
+        src/thememanager.cpp
+        include/thememanager.h
 )
 
 target_include_directories(AdaptiveThemeLib PUBLIC

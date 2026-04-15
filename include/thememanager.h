@@ -1,64 +1,41 @@
-#ifndef THEMEMANAGER_H
-#define THEMEMANAGER_H
+#ifndef ADAPTIVETHEMELIB_THEMEMANAGER_H
+#define ADAPTIVETHEMELIB_THEMEMANAGER_H
 
-#include <QPalette>
-#include <QShortcut>
-#include <QMap>
-#include <QColor>
-#include <QApplication>
+#include "palettemanager.h"
+#include "qssmanager.h"
 
-
-static QMap<QString, QPalette::ColorRole> roleMap = {
-        {"Window", QPalette::Window},
-        {"WindowText", QPalette::WindowText},
-        {"Base", QPalette::Base},
-        {"AlternateBase", QPalette::AlternateBase},
-        {"ToolTipBase", QPalette::ToolTipBase},
-        {"ToolTipText", QPalette::ToolTipText},
-        {"Text", QPalette::Text},
-        {"Button", QPalette::Button},
-        {"ButtonText", QPalette::ButtonText},
-        {"BrightText", QPalette::BrightText},
-        {"Highlight", QPalette::Highlight},
-        {"HighlightedText", QPalette::HighlightedText},
-        {"Link", QPalette::Link},
-        {"LinkVisited", QPalette::LinkVisited},
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        {"PlaceholderText", QPalette::PlaceholderText},
-#endif
-};
-
-static QMap<QString, QPalette::ColorGroup> groupMap = {
-        {"active", QPalette::Active},
-        {"inactive", QPalette::Inactive},
-        {"disabled", QPalette::Disabled}
-};
-
-/**
- * @class ThemeManager
- * @brief Manages application themes through preset options or custom XML-based themes.
- *
- * The ThemeManager class allows users to apply predefined "Light" or "Dark" themes
- * and also enables dynamic theme loading from custom XML files to customize the application's appearance.
- */
-class ThemeManager{
+class ThemeManager : public QObject{
+    Q_OBJECT
 public:
-    enum class PresetTheme{
-        System,
-        Light,
-        Dark
-    };
+    static ThemeManager& instance();
 
-    static void applyPreset(PresetTheme theme);
-    static bool loadFromXml(const QString& path);
-    static void resetToSystemTheme();
+    bool addCustomPalette(const QString& fileName);
+    bool addCustomStyle(const QString& fileName);
 
-    static void refreshStyleSheet();
+    bool applyStyle(const QString& styleName);
+    bool applyPalette(const QString& paletteName);
+
+    QList<QssManager::StyleInfo> availableStyles() const {return QssManager::instance().availableStyles();};
+    QStringList availablePalettes() const {return PaletteManager::instance().availablePalettes();};
+    void resetToSystemTheme();
+
+signals:
+    void paletteChanged(const QString& fileName);
+    void stylesheetChanged(const QString &fileName);
+    void themeChanged();
 
 private:
-    static QString generateStyleSheet(const QPalette &palette);
-    static  void updateIconManager();
+    ThemeManager();
+    ~ThemeManager() = default;
+    ThemeManager(const ThemeManager&) = delete;
+    ThemeManager& operator=(const ThemeManager&) = delete;
+
+    QString m_paletteFile;
+    QString m_qssFile;
+
+    PaletteManager::PresetPalette m_currentPalettePreset = PaletteManager::PresetPalette::System;
+    QssManager::PresetQss m_currentQssPreset = QssManager::PresetQss::System;
 };
 
 
-#endif //THEMEMANAGER_H
+#endif //ADAPTIVETHEMELIB_THEMEMANAGER_H

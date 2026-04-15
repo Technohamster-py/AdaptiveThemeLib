@@ -1,0 +1,7 @@
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>qss/classic.qss</file>
+        <file>qss/material.qss</file>
+        <file>qss/modern.qss</file>
+    </qresource>
+</RCC>
