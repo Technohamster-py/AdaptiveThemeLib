@@ -1,9 +1,3 @@
-Доделать:
-- Test (EMC) (дискреты)
-- In-phase component rejection
-
-
-
 # AdaptiveThemeLib
 
 [![Qt Version](https://img.shields.io/badge/Qt-6.0%2B-brightgreen.svg)](https://www.qt.io/)
