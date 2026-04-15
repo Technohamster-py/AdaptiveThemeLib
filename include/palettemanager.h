@@ -27,13 +27,18 @@ public:
     void setUserPaletteDir(const QString& dir);
     QString userPaletteDir() const {return m_userPaletteDir;};
 
+    void scanCustomPalettes();
+    QStringList availablePalettes();
 signals:
     void userDirectoryChanged(QString path);
     void paletteChanged(const QPalette& palette);
 
 public slots:
     void applyPalette(const QPalette& palette);
-    void applyPreset(PresetPalette preset);
+
+    bool applyPalette(const QString &name);
+
+    bool applyPreset(PresetPalette preset);
     bool loadFromXml(const QString &path);
 
 private:
@@ -44,6 +49,8 @@ private:
 
     QString m_userPaletteDir = QApplication::applicationDirPath() + "/themes/";
 
+    QStringList m_availablePalettes;
+    QHash<QString, QString> m_customPalettes;
     QPalette m_currentPalette;
     PresetPalette m_currentPreset = PresetPalette::System;
 };

@@ -57,12 +57,8 @@ bool ThemeManager::applyStyle(const QString &styleName) {
     return QssManager::instance().applyStyle(styleName);
 }
 
-void ThemeManager::applyPalette(const QPalette &palette) {
-    PaletteManager::instance().applyPalette(palette);
-}
-
-bool ThemeManager::applyPalette(PaletteManager::PresetPalette preset) {
-    PaletteManager::instance().applyPreset(preset);
+bool ThemeManager::applyPalette(const QString &paletteName) {
+    return PaletteManager::instance().applyPalette(paletteName);
 }
 
 ThemeManager::ThemeManager() : QObject() {

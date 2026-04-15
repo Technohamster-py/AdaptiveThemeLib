@@ -13,10 +13,10 @@ public:
     bool addCustomStyle(const QString& fileName);
 
     bool applyStyle(const QString& styleName);
-    void applyPalette(const QPalette &palette);
-    bool applyPalette(PaletteManager::PresetPalette preset);
+    bool applyPalette(const QString& paletteName);
 
     QList<QssManager::StyleInfo> availableStyles() const {return QssManager::instance().availableStyles();};
+    QStringList availablePalettes() const {return PaletteManager::instance().availablePalettes();};
     void resetToSystemTheme();
 
 signals:

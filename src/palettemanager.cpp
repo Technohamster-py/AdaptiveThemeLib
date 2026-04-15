@@ -2,8 +2,9 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QDebug>
+#include <QDir>
 
-static const QHash<QString, QPalette::ColorRole>& getRoleMap() {
+static const QHash<QString, QPalette::ColorRole> &getRoleMap() {
     static const QHash<QString, QPalette::ColorRole> roleMap = {
         {"Window", QPalette::Window},
         {"WindowText", QPalette::WindowText},
@@ -26,7 +27,7 @@ static const QHash<QString, QPalette::ColorRole>& getRoleMap() {
     return roleMap;
 }
 
-static const QHash<QString, QPalette::ColorGroup>& getGroupMap() {
+static const QHash<QString, QPalette::ColorGroup> &getGroupMap() {
     static const QHash<QString, QPalette::ColorGroup> groupMap = {
         {"active", QPalette::Active},
         {"inactive", QPalette::Inactive},
@@ -68,6 +69,19 @@ void PaletteManager::applyPalette(const QPalette &palette) {
     emit paletteChanged(m_currentPalette);
 }
 
+bool PaletteManager::applyPalette(const QString &name) {
+    if (!m_availablePalettes.contains(name)) return false;
+
+    if (presetFromName(name) != PresetPalette::Undefined) {
+        return applyPreset(presetFromName(name));
+    }
+
+    if (m_customPalettes.contains(name)) {
+        return loadFromXml(m_customPalettes[name]);
+    }
+    return false;
+}
+
 /**
  * @brief Applies the selected preset theme to the application.
  *
@@ -81,7 +95,7 @@ void PaletteManager::applyPalette(const QPalette &palette) {
  * or PresetTheme::Dark. If an unknown value is provided, the default Light
  * theme is applied.
  */
-void PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
+bool PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
     QPalette palette;
     switch (preset) {
         case PresetPalette::Light:
@@ -113,9 +127,10 @@ void PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
             break;
         default:
             resetToSystemPalette();
-            return;
+            return false;
     }
     applyPalette(palette);
+    return true;
 }
 
 /**
@@ -154,8 +169,8 @@ bool PaletteManager::loadFromXml(const QString &path) {
     }
 
     QPalette palette;
-    const auto& groupMap = getGroupMap();
-    const auto& roleMap = getRoleMap();
+    const auto &groupMap = getGroupMap();
+    const auto &roleMap = getRoleMap();
 
     while (!xml.atEnd() && !xml.hasError()) {
         xml.readNext();
@@ -231,5 +246,37 @@ void PaletteManager::resetToSystemPalette() {
 
 void PaletteManager::setUserPaletteDir(const QString &dir) {
     m_userPaletteDir = dir;
+    availablePalettes();
     emit userDirectoryChanged(dir);
+}
+
+void PaletteManager::scanCustomPalettes() {
+    m_customPalettes.clear();
+
+    QDir dir(m_userPaletteDir);;
+    if (!dir.exists()) {
+        qWarning() << "Palette directory not found:" << m_userPaletteDir;
+        return;
+    }
+
+    QStringList paletteFiles = dir.entryList(QStringList() << "*.xml*", QDir::Files);
+    for (const QString &fileName: paletteFiles) {
+        QString paletteName = QFileInfo(fileName).baseName();
+        if (!m_availablePalettes.contains(paletteName)) {
+            m_customPalettes[paletteName] = fileName;
+            m_availablePalettes.append(paletteName);
+        }
+    }
+}
+
+QStringList PaletteManager::availablePalettes() {
+    m_availablePalettes.clear();
+
+    m_availablePalettes.append("System");
+    m_availablePalettes.append("Light");
+    m_availablePalettes.append("Dark");
+
+    scanCustomPalettes();
+
+    return m_availablePalettes;
 }
