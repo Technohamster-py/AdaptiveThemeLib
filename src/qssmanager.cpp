@@ -6,6 +6,8 @@
 #include <QDir>
 #include <QStyleFactory>
 
+Q_LOGGING_CATEGORY(qssCategory, "theme.qss")
+
 QString QssManager::presetName(PresetQss preset) {
     switch (preset) {
         case PresetQss::Material: return "Material";
