@@ -74,7 +74,7 @@ void PaletteManager::applyPalette(const QPalette &palette) {
 bool PaletteManager::applyPalette(const QString &name) {
     qCDebug(paletteCategory) << "applyPalette(" << name << ")";
     if (!m_availablePalettes.contains(name)) {
-        qWarning() << "palette" << name << "not available";
+        qCWarning(paletteCategory) << "palette" << name << "not available";
         return false;
     }
 
