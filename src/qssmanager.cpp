@@ -6,11 +6,9 @@
 #include <QDir>
 #include <QStyleFactory>
 
-Q_LOGGING_CATEGORY(qssCategory, "theme.qss")
-
 QString QssManager::presetName(PresetQss preset) {
     switch (preset) {
-        case PresetQss::Material: return ":/qss/Material";
+        case PresetQss::Material: return "Material";
         case PresetQss::Classic: return "Classic";
         case PresetQss::Modern: return "Modern";
         default: return "Unknown";
@@ -118,7 +116,8 @@ bool QssManager::loadQssFromFile(const QString &fileName) {
     return true;
 }
 
-QssManager::QssManager() {
+QssManager::QssManager() : QObject() {
+    Q_INIT_RESOURCE(resources);
     scanNativeStyles();
     scanQssStyles();
 }
@@ -237,19 +236,19 @@ void QssManager::scanQssStyles() {
 QString QssManager::processVariables(const QString &qss) {
     QString result = qss;
 
-    QRegularExpression regExp("\\$([A-Za-z_][A-Za-z0-9_]*)");
-    QRegularExpressionMatchIterator it = regExp.globalMatch(qss);
+    QList<QString> varNames = m_variables.keys();
+    std::sort(varNames.begin(), varNames.end(),
+              [](const QString& a, const QString& b) {
+                  return a.length() > b.length();
+              });
 
-    QSet<QString> variables;
-    while (it.hasNext()) {
-        variables.insert(it.next().captured(1));
+    for (const QString& varName : varNames) {
+        QString pattern = "\\$" + QRegularExpression::escape(varName) + "\\b";
+        QRegularExpression regex(pattern);
+        QString value = m_variables[varName];
+        result.replace(regex, value);
     }
 
-    for (const QString &varName : variables) {
-        if (m_variables.contains(varName)) {
-            result.replace("$" + varName, m_variables[varName]);
-        }
-    }
     return result;
 }
 
