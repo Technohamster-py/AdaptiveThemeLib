@@ -267,8 +267,8 @@ void PaletteManager::scanCustomPalettes() {
 
     QDir dir(m_userPaletteDir);;
     if (!dir.exists()) {
-        qCWarning(paletteCategory) << "Palette directory not found:" << m_userPaletteDir;
-        return;
+        qCWarning(paletteCategory) << "Palette directory not found:" << m_userPaletteDir << "Creating dir";
+        dir.mkpath(".");
     }
 
     QStringList paletteFiles = dir.entryList(QStringList() << "*.xml*", QDir::Files);

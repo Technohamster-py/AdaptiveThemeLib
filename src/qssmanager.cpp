@@ -217,8 +217,8 @@ void QssManager::scanQssStyles() {
 
     QDir dir(m_userQssDirectory);
     if (!dir.exists()) {
-        qCWarning(qssCategory) << "Specified user qss directory"<< m_userQssDirectory << " does not exist";
-        return;
+        qCWarning(qssCategory) << "Specified user qss directory"<< m_userQssDirectory << " does not exist. Creating dir";
+        dir.mkpath(".");
     }
 
     QStringList qssFiles = dir.entryList(QStringList() << "*.qss",QDir::Files);
