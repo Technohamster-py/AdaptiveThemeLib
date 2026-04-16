@@ -70,9 +70,14 @@ void PaletteManager::applyPalette(const QPalette &palette) {
 }
 
 bool PaletteManager::applyPalette(const QString &name) {
-    if (!m_availablePalettes.contains(name)) return false;
+    qDebug() << "applyPalette(" << name << ")";
+    if (!m_availablePalettes.contains(name)) {
+        qWarning() << "palette" << name << "not available";
+        return false;
+    }
 
     if (presetFromName(name) != PresetPalette::Undefined) {
+        qDebug() << "applying preset palette(" << name << ")";
         return applyPreset(presetFromName(name));
     }
 
@@ -237,6 +242,10 @@ bool PaletteManager::loadFromXml(const QString &path) {
     }
     applyPalette(palette);
     return true;
+}
+
+PaletteManager::PaletteManager() {
+    availablePalettes();
 }
 
 void PaletteManager::resetToSystemPalette() {

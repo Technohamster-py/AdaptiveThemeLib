@@ -116,7 +116,8 @@ bool QssManager::loadQssFromFile(const QString &fileName) {
     return true;
 }
 
-QssManager::QssManager() {
+QssManager::QssManager() : QObject() {
+    Q_INIT_RESOURCE(resources);
     scanNativeStyles();
     scanQssStyles();
 }

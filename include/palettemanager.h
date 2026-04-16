@@ -42,7 +42,7 @@ public slots:
     bool loadFromXml(const QString &path);
 
 private:
-    PaletteManager() = default;
+    PaletteManager();
     ~PaletteManager() = default;
     PaletteManager(const PaletteManager&) = delete;
     PaletteManager& operator=(const PaletteManager&) = delete;
