@@ -6,9 +6,11 @@
 #include <QDir>
 #include <QStyleFactory>
 
+Q_LOGGING_CATEGORY(qssCategory, "theme.qss")
+
 QString QssManager::presetName(PresetQss preset) {
     switch (preset) {
-        case PresetQss::Material: return "Material";
+        case PresetQss::Material: return ":/qss/Material";
         case PresetQss::Classic: return "Classic";
         case PresetQss::Modern: return "Modern";
         default: return "Unknown";
@@ -48,13 +50,13 @@ bool QssManager::applyStyle(const QString &styleName) {
         return applyQssStyle(styleName);
     }
 
-    qWarning() << "Style not found: " << styleName;
+    qCWarning(qssCategory) << "Style not found: " << styleName;
     return false;
 }
 
 bool QssManager::applyNativeStyle(const QString &styleName) {
     if (!m_nativeStyles.contains(styleName)) {
-        qWarning() << "Native style not found: " << styleName;
+        qCWarning(qssCategory) << "Native style not found: " << styleName;
         return false;
     }
     dropStyleSheet();
@@ -68,16 +70,16 @@ bool QssManager::applyNativeStyle(const QString &styleName) {
         emit nativeStyleUpdated(styleName);
         emit styleChanged(styleName, StyleType::Native);
 
-        qDebug() << "Applying native style" << styleName;
+        qCDebug(qssCategory) << "Applying native style" << styleName;
         return true;
     }
-    qWarning() << "Error while applying native style: " << styleName;
+    qCWarning(qssCategory) << "Error while applying native style: " << styleName;
     return false;
 }
 
 bool QssManager::applyQssStyle(const QString &styleName) {
     if (!m_qssStyles.contains(styleName)) {
-        qWarning() << "Qss style not found: " << styleName;
+        qCWarning(qssCategory) << "Qss style not found: " << styleName;
         return false;
     }
 
@@ -100,11 +102,11 @@ bool QssManager::applyQssStyle(const QString &styleName) {
 bool QssManager::loadQssFromFile(const QString &fileName) {
     QFile file(fileName);
     if (!file.exists()) {
-        qWarning() << "File" << fileName << "does not exist";
+        qCWarning(qssCategory) << "File" << fileName << "does not exist";
         return false;
     }
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Unable to open file" << fileName << "because of" << file.errorString();
+        qCWarning(qssCategory) << "Unable to open file" << fileName << "because of" << file.errorString();
         return false;
     }
 
@@ -125,7 +127,7 @@ void QssManager::applyQssFromFile(const QString &fileName) {
     if (loadQssFromFile(fileName))
         applyCurrentStyleSheet();
     else
-        qWarning() << "Unable to load stylesheet from file " << fileName;
+        qCWarning(qssCategory) << "Unable to load stylesheet from file " << fileName;
 }
 
 void QssManager::applyPreset(const PresetQss& preset) {
@@ -214,7 +216,7 @@ void QssManager::scanQssStyles() {
 
     QDir dir(m_userQssDirectory);
     if (!dir.exists()) {
-        qWarning() << "Specified user qss directory"<< m_userQssDirectory << " does not exist";
+        qCWarning(qssCategory) << "Specified user qss directory"<< m_userQssDirectory << " does not exist";
         return;
     }
 

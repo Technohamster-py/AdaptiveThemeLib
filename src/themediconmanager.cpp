@@ -9,6 +9,8 @@
 #include <QPalette>
 #include <utility>
 
+Q_LOGGING_CATEGORY(iconCategory, "theme.icon")
+
 /**
  * Constructs a ThemedIconManager instance.
  * Installs an event filter to monitor application-wide events.
@@ -87,7 +89,7 @@ void ThemedIconManager::regenerateAndApplyIcon(const IconTarget &target) {
 bool ThemedIconManager::addSvgToCache(const QString &path, const QString &key) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Cannot open SVG:" << path;
+        qCWarning(iconCategory) << "Cannot open SVG:" << path;
         return false;
     }
     QString svg = QString::fromUtf8(file.readAll());

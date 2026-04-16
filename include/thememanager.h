@@ -4,6 +4,10 @@
 #include "palettemanager.h"
 #include "qssmanager.h"
 
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(themeCategory)
+
 class ThemeManager : public QObject{
     Q_OBJECT
 public:

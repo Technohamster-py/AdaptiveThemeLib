@@ -6,6 +6,9 @@
 #include <QString>
 #include <QHash>
 #include <QPalette>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(qssCategory)
 
 class QssManager : public QObject{
     Q_OBJECT

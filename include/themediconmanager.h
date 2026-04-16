@@ -9,6 +9,9 @@
 #include <QList>
 #include <QPointer>
 #include <functional>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(iconCategory)
 
 /**
  * @class ThemedIconManager

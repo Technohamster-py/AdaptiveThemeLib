@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <qfileinfo.h>
 
+Q_LOGGING_CATEGORY(themeCategory, "theme.manager")
+
 ThemeManager& ThemeManager::instance() {
     static ThemeManager instance;
     return instance;
@@ -16,12 +18,12 @@ ThemeManager& ThemeManager::instance() {
 bool ThemeManager::addCustomPalette(const QString &fileName) {
     QFile file(fileName);
     if (!file.exists()) {
-        qWarning() <<"ThemeManager::addCustomPalette - file does not exist" << fileName;
+        qCWarning(themeCategory) <<"ThemeManager::addCustomPalette - file does not exist" << fileName;
         return false;
     }
     QFileInfo fileInfo(file);
     if (!(fileInfo.suffix() == "xml")) {
-        qWarning() << "Invalid file extension: " << fileName;
+        qCWarning(themeCategory) << "Invalid file extension: " << fileName;
         return false;
     }
     QString dir = PaletteManager::instance().userPaletteDir();
@@ -36,12 +38,12 @@ bool ThemeManager::addCustomPalette(const QString &fileName) {
 bool ThemeManager::addCustomStyle(const QString &fileName) {
     QFile file(fileName);
     if (!file.exists()) {
-        qWarning() <<"ThemeManager::addCustomStyle - file does not exist" << fileName;
+        qCWarning(themeCategory) <<"ThemeManager::addCustomStyle - file does not exist" << fileName;
         return false;
     }
     QFileInfo fileInfo(file);
     if (!(fileInfo.suffix() == "qss")) {
-        qWarning() << "Invalid file extension: " << fileName;
+        qCWarning(themeCategory) << "Invalid file extension: " << fileName;
         return false;
     }
     QString dir = QssManager::instance().userQssDirectory();

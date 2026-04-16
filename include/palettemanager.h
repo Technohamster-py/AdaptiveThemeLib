@@ -4,6 +4,9 @@
 #include <QPalette>
 #include <QShortcut>
 #include <QApplication>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(paletteCategory)
 
 /**
  * @class PaletteManager

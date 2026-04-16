@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QDir>
 
+Q_LOGGING_CATEGORY(paletteCategory, "theme.palette")
+
 static const QHash<QString, QPalette::ColorRole> &getRoleMap() {
     static const QHash<QString, QPalette::ColorRole> roleMap = {
         {"Window", QPalette::Window},
@@ -79,6 +81,7 @@ bool PaletteManager::applyPalette(const QString &name) {
     if (m_customPalettes.contains(name)) {
         return loadFromXml(m_customPalettes[name]);
     }
+    qCWarning(paletteCategory) << "Palette " << name << " not found";
     return false;
 }
 
@@ -127,6 +130,7 @@ bool PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
             break;
         default:
             resetToSystemPalette();
+            qCWarning(paletteCategory) << "Unknown palette preset:" << static_cast<int>(preset);
             return false;
     }
     applyPalette(palette);
@@ -157,14 +161,14 @@ bool PaletteManager::applyPreset(PaletteManager::PresetPalette preset) {
 bool PaletteManager::loadFromXml(const QString &path) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Cannot open theme file:" << path << "\t\tbecause of:" << file.errorString();
+        qCWarning(paletteCategory) << "Cannot open theme file:" << path << "\t\tbecause of:" << file.errorString();
         return false;
     }
 
     QXmlStreamReader xml(&file);
     xml.setEntityResolver(nullptr);
     if (xml.hasError()) {
-        qWarning() << "XML parse error:" << xml.errorString();
+        qCWarning(paletteCategory) << "XML parse error:" << xml.errorString();
         return false;
     }
 
@@ -232,7 +236,7 @@ bool PaletteManager::loadFromXml(const QString &path) {
         }
     }
     if (xml.hasError()) {
-        qWarning() << "Palette load error:" << xml.errorString();
+        qCWarning(paletteCategory) << "Palette load error:" << xml.errorString();
         return false;
     }
     applyPalette(palette);
@@ -254,7 +258,7 @@ void PaletteManager::scanCustomPalettes() {
 
     QDir dir(m_userPaletteDir);;
     if (!dir.exists()) {
-        qWarning() << "Palette directory not found:" << m_userPaletteDir;
+        qCWarning(paletteCategory) << "Palette directory not found:" << m_userPaletteDir;
         return;
     }
 
