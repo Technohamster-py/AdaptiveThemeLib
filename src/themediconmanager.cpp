@@ -111,10 +111,6 @@ QPixmap ThemedIconManager::getPixmapFromCache(const IconTarget &target) {
     svgCopy.replace(QRegularExpression(R"(currentColor)"), themeColor().name());
 
     QSvgRenderer renderer;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-    renderer.setOptions(QSvgRenderer::Option::LoadExternalResourcesDisabled |
-                        QSvgRenderer::Option::ScriptingDisabled)
-#endif
     renderer.load(svgCopy.toUtf8());
     QPixmap pixmap(target.size);
     pixmap.fill(Qt::transparent);
